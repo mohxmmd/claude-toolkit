@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+*.log
+.env
+.env.*
+
+# CRAFT writes per-project state into consuming repos, not into this one.
+# Kept here so a local trial run inside the repo cannot be committed.
+.craft/cache/

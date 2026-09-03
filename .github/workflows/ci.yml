@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  gate:
+    name: Budget and spec gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Syntax check every script
+        run: |
+          for file in craft/scripts/*.mjs craft/scripts/lib/*.mjs; do
+            node --check "$file"
+          done
+
+      - name: Validate manifests
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('craft/.claude-plugin/plugin.json','utf8'))"
+
+      - name: Version consistency
+        run: node craft/scripts/version.mjs --check
+
+      - name: Budget and spec gate
+        run: node craft/scripts/budget.mjs
+
+      - name: Smoke test scripts against this repository
+        run: |
+          node craft/scripts/context.mjs --target README.md
+          node craft/scripts/measure.mjs --root . > /dev/null
+          node craft/scripts/inspect.mjs README.md > /dev/null

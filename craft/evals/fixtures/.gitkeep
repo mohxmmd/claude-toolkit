@@ -1,0 +1,3 @@
+Fixture projects live here, one directory each. See ../README.md for what a
+fixture must contain. This is the only place in the repository where a committed
+.craft/ directory is expected.

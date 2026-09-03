@@ -1,0 +1,24 @@
+name: Feature request
+description: Propose a capability, a reference file, or a detector rule.
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The user problem
+      description: What goes wrong today, in terms of the person using the product being redesigned.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+    validations:
+      required: true
+  - type: textarea
+    id: cost
+    attributes:
+      label: Context cost
+      description: "Every addition is paid for on every task that loads it. Where would this live: core, a reference, a script, or config?"
+    validations:
+      required: true

@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "craft",
+  "displayName": "CRAFT",
+  "version": "0.1.0",
+  "description": "Improve existing SaaS interfaces without losing the product's identity. Preserve-first UI/UX evolution: diagnoses before it designs, makes the smallest sufficient change, and proves the result.",
+  "author": { "name": "Mohammed" },
+  "homepage": "https://github.com/mohxmmd/skills/tree/main/craft",
+  "repository": "https://github.com/mohxmmd/skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "ui", "ux", "design", "redesign", "refactor", "accessibility",
+    "design-system", "responsive", "saas", "frontend"
+  ],
+  "userConfig": {
+    "posture": {
+      "type": "string",
+      "title": "Default change posture",
+      "description": "How much change CRAFT may make before asking. conservative | evolutionary | transformative",
+      "default": "evolutionary"
+    },
+    "verification": {
+      "type": "string",
+      "title": "Verification depth",
+      "description": "auto | checks | visual | browser | none. auto picks a level from the risk of each change.",
+      "default": "auto"
+    },
+    "questions_max": {
+      "type": "number",
+      "title": "Maximum blocking questions per task",
+      "description": "CRAFT infers where it safely can and asks only when the answer changes the outcome.",
+      "default": 3
+    },
+    "research": {
+      "type": "string",
+      "title": "External research",
+      "description": "on-demand | never. Research is evidence, never doctrine, and never overrides your product's conventions.",
+      "default": "on-demand"
+    }
+  }
+}

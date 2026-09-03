@@ -1,0 +1,35 @@
+name: Bug report
+description: CRAFT did something wrong, or did not do something it should have.
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you asked for, and what CRAFT did.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: plan
+    attributes:
+      label: The plan line CRAFT printed
+      description: "The line beginning `plan:`. It shows what was routed and loaded, which is usually where the problem is."
+      render: text
+  - type: input
+    id: stack
+    attributes:
+      label: Stack
+      placeholder: "Laravel + Blade + Tailwind, React + shadcn, ..."
+  - type: input
+    id: version
+    attributes:
+      label: CRAFT version
+      placeholder: "0.1.0"
+    validations:
+      required: true
