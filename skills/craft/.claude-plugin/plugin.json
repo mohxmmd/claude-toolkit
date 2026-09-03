@@ -1,16 +1,24 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "craft",
-  "displayName": "CRAFT",
   "version": "0.1.0",
   "description": "Improve existing SaaS interfaces without losing the product's identity. Preserve-first UI/UX evolution: diagnoses before it designs, makes the smallest sufficient change, and proves the result.",
-  "author": { "name": "Mohammed" },
-  "homepage": "https://github.com/mohxmmd/skills/tree/main/craft",
-  "repository": "https://github.com/mohxmmd/skills",
+  "author": {
+    "name": "Mohammed"
+  },
+  "homepage": "https://github.com/mohxmmd/claude-toolkit/tree/main/skills/craft",
+  "repository": "https://github.com/mohxmmd/claude-toolkit",
   "license": "Apache-2.0",
   "keywords": [
-    "ui", "ux", "design", "redesign", "refactor", "accessibility",
-    "design-system", "responsive", "saas", "frontend"
+    "ui",
+    "ux",
+    "design",
+    "redesign",
+    "refactor",
+    "accessibility",
+    "design-system",
+    "responsive",
+    "saas",
+    "frontend"
   ],
   "userConfig": {
     "posture": {

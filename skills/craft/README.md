@@ -4,7 +4,7 @@
 
 Same product. Better product.
 
-Part of the [skills](../README.md) marketplace.
+Part of the [skills](../../README.md) marketplace.
 
 CRAFT is a [Claude Code](https://claude.com/claude-code) skill for products that
 already exist and already have users. It reads your product's own conventions,
@@ -57,8 +57,8 @@ No setup. No questionnaire. No new design system.
 ## Install
 
 ```bash
-claude plugin marketplace add mohxmmd/skills
-claude plugin install craft@skills
+claude plugin marketplace add mohxmmd/claude-toolkit
+claude plugin install craft@claude-toolkit
 ```
 
 Then open a project with a UI in it and ask for something.
@@ -149,8 +149,8 @@ Four ideas carry it:
 4. **Value is visible.** Every task ends with what changed, why, what was
    preserved, and what was verified.
 
-More detail: [docs/how-it-works.md](../docs/how-it-works.md) ·
-[docs/configuration.md](../docs/configuration.md)
+More detail: [docs/how-it-works.md](../../docs/craft/how-it-works.md) ·
+[docs/configuration.md](../../docs/craft/configuration.md)
 
 ---
 
@@ -202,7 +202,7 @@ All are zero-dependency Node 20 ESM and safe to run against any repository.
 
 **0.1.0.** The core loop works and is measured. Browser-driven verification, the
 deterministic detector, surface memory and reference grounding are specified and
-scheduled; see the [changelog](../CHANGELOG.md) for what is and is not in this
+scheduled; see the [changelog](../../CHANGELOG.md) for what is and is not in this
 release, including its known limitations.
 
 ---
@@ -216,11 +216,11 @@ preserve-first evolution of products that already exist.
 
 Full credit, and what was learned from each project including where their
 approach was deliberately not followed, is in
-**[docs/inspirations.md](../docs/inspirations.md)**.
+**[docs/inspirations.md](../../docs/craft/inspirations.md)**.
 
 ## Contributing
 
-See [CONTRIBUTING.md](../CONTRIBUTING.md). The short version: every addition is paid
+See [CONTRIBUTING.md](../../CONTRIBUTING.md). The short version: every addition is paid
 for on every task that loads it, so a pull request should say what it costs and
 which observed failure it fixes.
 
@@ -228,4 +228,4 @@ which observed failure it fixes.
 
 Created and maintained by **Mohammed**.
 
-Licensed under [Apache 2.0](../LICENSE).
+Licensed under [Apache 2.0](../../LICENSE).

@@ -6,9 +6,9 @@
  * update only when it is bumped. Three places have to agree or an install
  * resolves to something the changelog does not describe:
  *
- *   craft/.claude-plugin/plugin.json     version
- *   .claude-plugin/marketplace.json      plugins[].version and metadata.version
- *   CHANGELOG.md                         the topmost released heading
+ *   skills/craft/.claude-plugin/plugin.json  version
+ *   .claude-plugin/marketplace.json          plugins[].version and metadata.version
+ *   CHANGELOG.md                             the topmost released heading
  *
  * `--check` runs in CI. `--bump` does a release so the three cannot drift.
  *
@@ -22,7 +22,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const PLUGIN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const REPO_ROOT = path.resolve(PLUGIN_ROOT, '..');
+const REPO_ROOT = path.resolve(PLUGIN_ROOT, '../..');
 
 const PLUGIN_MANIFEST = path.join(PLUGIN_ROOT, '.claude-plugin/plugin.json');
 const MARKETPLACE_MANIFEST = path.join(REPO_ROOT, '.claude-plugin/marketplace.json');

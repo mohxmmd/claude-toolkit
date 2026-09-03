@@ -154,5 +154,5 @@ does not re-litigate a question you already settled. It is not a log of edits.
 
 Bought by routing, by compiling `config.md` into a small projection rather than
 reading the file every time, by loading the craft floor only on turns that edit,
-and by scripts that return summaries instead of dumps. `node craft/scripts/budget.mjs`
+and by scripts that return summaries instead of dumps. `node skills/craft/scripts/budget.mjs`
 enforces it, and CI fails the build on a breach.

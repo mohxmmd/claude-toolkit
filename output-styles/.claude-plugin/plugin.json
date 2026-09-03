@@ -1,0 +1,21 @@
+{
+  "name": "tars",
+  "version": "1.1.0",
+  "description": "A no-BS engineering partner output style for Claude Code. Answers first in a line or two, challenges weak reasoning, separates implemented from verified, and stays in scope.",
+  "author": {
+    "name": "Mohammed"
+  },
+  "homepage": "https://github.com/mohxmmd/claude-toolkit/tree/main/output-styles",
+  "repository": "https://github.com/mohxmmd/claude-toolkit",
+  "license": "Apache-2.0",
+  "keywords": [
+    "output-style",
+    "claude-code",
+    "code-review",
+    "direct",
+    "concise",
+    "verification",
+    "scope"
+  ],
+  "outputStyles": "./"
+}

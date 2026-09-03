@@ -35,7 +35,7 @@ Compaction release. v1.0 was as verbose as the default style, sometimes more so.
 
 ### Distribution
 
-- TARS now ships from the [mohxmmd/skills](https://github.com/mohxmmd/skills)
+- TARS now ships from the [mohxmmd/claude-toolkit](https://github.com/mohxmmd/claude-toolkit)
   marketplace alongside CRAFT, and is licensed Apache-2.0 to match that
   repository. It was Apache-2.0 from its first public release; no previously
   published version was under a different license.

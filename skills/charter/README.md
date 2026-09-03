@@ -25,15 +25,14 @@ Charter's job is to apply the correct configuration in one command, make what it
 ## Install
 
 ```bash
-/plugin marketplace add <your-org>/charter
-/plugin install charter
+claude plugin marketplace add mohxmmd/claude-toolkit
+claude plugin install charter@claude-toolkit
 ```
 
-Or clone it and load it directly:
+Or load a local checkout directly, which is how the tests run:
 
 ```bash
-git clone <repo> ~/charter
-claude --plugin-dir ~/charter
+claude --plugin-dir /path/to/claude-toolkit/skills/charter
 ```
 
 ## Quick start
@@ -119,6 +118,20 @@ POSIX shell and git. `jq` is used when present and not required. Works on macOS,
 - [Safety model](docs/SAFETY.md) — the three tiers, and **what the boundaries do not protect against**
 - [Configuration](docs/CONFIG.md) — hand-editing, silencing, and uninstalling cleanly
 
-## Author and licence
+## Contributing
 
-Mohammed. MIT.
+Charter's claims are numbers, so a change has to move a number or fix a failure
+somebody actually watched happen. See [CONTRIBUTING.md](CONTRIBUTING.md) for the
+gates and for how to add a case to the permission corpus.
+
+Charter lives in [mohxmmd/claude-toolkit](https://github.com/mohxmmd/claude-toolkit) alongside
+[CRAFT](../craft/README.md) and [TARS](../../output-styles/README.md). The three are
+independent and usable separately. Issues and pull requests go to that
+repository.
+
+## License
+
+Apache-2.0. See [LICENSE](../../LICENSE).
+
+A charter is a founding document that grants powers and limits them in the same
+breath. That is the product in one word.

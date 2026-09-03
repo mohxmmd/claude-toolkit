@@ -55,7 +55,7 @@ verdict instead of a request for permission.
 
 TARS is not mainly shorter than the default. It is denser.
 
-These are real transcripts, not mockups. More in [docs/examples.md](docs/examples.md),
+These are real transcripts, not mockups. More in [docs/tars/examples.md](../docs/tars/examples.md),
 including a case where the default style already does fine.
 
 ---
@@ -63,8 +63,8 @@ including a case where the default style already does fine.
 ## Quick start
 
 ```bash
-git clone https://github.com/mohxmmd/skills.git
-cd skills/tars
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit
 ./install.sh
 ```
 
@@ -83,7 +83,7 @@ Copy one file:
 
 ```bash
 mkdir -p ~/.claude/output-styles
-curl -fsSL https://raw.githubusercontent.com/mohxmmd/skills/main/tars/output-styles/TARS.md \
+curl -fsSL https://raw.githubusercontent.com/mohxmmd/claude-toolkit/main/output-styles/TARS.md \
   -o ~/.claude/output-styles/TARS.md
 ```
 
@@ -167,7 +167,7 @@ people who already know what they are looking at.
 TARS is one Markdown file of one-line rules. Delete a line to remove a
 behavior, add a line to add one. There is no config format to learn.
 
-[docs/customization.md](docs/customization.md) covers which section controls
+[docs/tars/customization.md](../docs/tars/customization.md) covers which section controls
 what, plus recipes for: making it stricter, making it quieter, changing the
 humor level, restoring chat-first behavior, and adding your team's engineering
 rules.
@@ -198,8 +198,8 @@ Verified on Claude Code **2.1.112** (Linux): user-level install at
 marketplace.** TARS ships a valid plugin manifest, so this works:
 
 ```bash
-claude plugin marketplace add mohxmmd/skills
-claude plugin install tars@skills
+claude plugin marketplace add mohxmmd/claude-toolkit
+claude plugin install tars@claude-toolkit
 ```
 
 Tested on 2.1.112, it installs cleanly and then does nothing. The file lands in
@@ -222,8 +222,8 @@ Behavioral changes need evidence, not opinion. See
 [CONTRIBUTING.md](CONTRIBUTING.md) for how to test a proposed rule change
 before opening a PR.
 
-TARS lives in [mohxmmd/skills](https://github.com/mohxmmd/skills) alongside
-[CRAFT](../craft/README.md). Issues and pull requests go to that repository.
+TARS lives in [mohxmmd/claude-toolkit](https://github.com/mohxmmd/claude-toolkit) alongside
+[CRAFT](../skills/craft/README.md). Issues and pull requests go to that repository.
 
 ## License
 

@@ -17,6 +17,19 @@ Two version numbers matter:
 
 ## [Unreleased]
 
+### Changed
+
+- The repository is now **claude-toolkit**. CRAFT lives at `skills/craft/`, so
+  the marketplace is added as `mohxmmd/claude-toolkit` and the plugin installs as
+  `craft@claude-toolkit`. Nothing inside the plugin moved, so `.craft/` and
+  `craft_schema` are unaffected and no migration is needed.
+
+### Fixed
+
+- `craft/.claude-plugin/plugin.json` carried `$schema` and `displayName`, which
+  `claude plugin validate` rejects as unrecognised keys. Both removed; the
+  manifest now validates. CI validates every plugin rather than only CHARTER's.
+
 ## [0.1.0] - 2026-09-03
 
 First release. `craft_schema` 1.
@@ -55,5 +68,5 @@ First release. `craft_schema` 1.
 - Dials are measured with file-share proxies for motion and ornament, which
   under-report a design system concentrated in a few stylesheets.
 
-[Unreleased]: https://github.com/mohxmmd/skills/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/mohxmmd/skills/releases/tag/v0.1.0
+[Unreleased]: https://github.com/mohxmmd/claude-toolkit/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/mohxmmd/claude-toolkit/releases/tag/v0.1.0

@@ -25,7 +25,7 @@ So a change should answer three questions:
 
 | Layer | Contains | Test for belonging here |
 |---|---|---|
-| `skills/craft/SKILL.md` | doctrine, taxonomy, budget, precedence, routing | needed on **every** task |
+| `skills/craft/skills/craft/SKILL.md` | doctrine, taxonomy, budget, precedence, routing | needed on **every** task |
 | `references/` | diagnostic detail for one topic | needed on *some* tasks, and the model gets it wrong without it |
 | `router/INDEX.md` | routing that the inline matrix misses | a real request that failed to route |
 | `scripts/` | anything deterministic | counting, parsing, measuring, checking |
@@ -64,10 +64,10 @@ Not as doctrine.
 ## Running the checks
 
 ```bash
-node craft/scripts/budget.mjs        # token budgets, frontmatter spec, links
-node craft/scripts/version.mjs --check
-node craft/scripts/measure.mjs       # smoke test against any real project
-node craft/scripts/inspect.mjs <file>
+node skills/craft/scripts/budget.mjs        # token budgets, frontmatter spec, links
+node skills/craft/scripts/version.mjs --check
+node skills/craft/scripts/measure.mjs       # smoke test against any real project
+node skills/craft/scripts/inspect.mjs <file>
 ```
 
 CI runs all of them. A pull request that fails the gate will not be merged, and
@@ -77,7 +77,7 @@ exists to prevent.
 ## Evaluations
 
 Behaviour changes need an evaluation case. See
-[craft/evals/README.md](craft/evals/README.md).
+[skills/craft/evals/README.md](skills/craft/evals/README.md).
 
 Baselines come first: run the case **without** the change, record what went
 wrong, then make the change and show the difference. A reference file that cannot
@@ -92,10 +92,10 @@ regression, however good the diffs look.
 Versions are managed by script so the three places that carry one cannot drift.
 
 ```bash
-node craft/scripts/version.mjs --bump patch     # or minor, major
+node skills/craft/scripts/version.mjs --bump patch     # or minor, major
 # edit the new CHANGELOG.md section
-git commit -am "release: v$(node craft/scripts/version.mjs --current)"
-git tag "v$(node craft/scripts/version.mjs --current)"
+git commit -am "release: v$(node skills/craft/scripts/version.mjs --current)"
+git tag "v$(node skills/craft/scripts/version.mjs --current)"
 ```
 
 - `patch` fixes behaviour. `minor` adds a capability or a reference. `major`

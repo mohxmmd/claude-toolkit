@@ -5,7 +5,7 @@
 
 set -eu
 
-RAW_URL="https://raw.githubusercontent.com/mohxmmd/skills/main/tars/output-styles/TARS.md"
+RAW_URL="https://raw.githubusercontent.com/mohxmmd/claude-toolkit/main/output-styles/TARS.md"
 DEST_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/output-styles"
 
 usage() {

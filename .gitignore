@@ -7,3 +7,17 @@ node_modules/
 # CRAFT writes per-project state into consuming repos, not into this one.
 # Kept here so a local trial run inside the repo cannot be committed.
 .craft/cache/
+
+# CHARTER's test fixtures are generated repositories with their own .git
+# directories; committing them would make the outer repo treat them as submodules.
+skills/charter/tests/fixtures/
+
+# Editor and OS noise.
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+
+# Machine-local Claude Code state. settings.json is shareable; these are not.
+.claude/settings.local.json
+.claude/charter.json

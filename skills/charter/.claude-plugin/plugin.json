@@ -1,16 +1,24 @@
 {
-  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
   "name": "charter",
-  "displayName": "CHARTER",
   "version": "0.1.0",
   "description": "A charter grants powers and limits them in the same document. Turns a two-minute interview into a project's working agreement and its enforced permission boundaries, then stays out of the way at about 600 tokens a session.",
-  "author": { "name": "Mohammed" },
-  "homepage": "https://github.com/mohxmmd/skills/tree/main/charter",
-  "repository": "https://github.com/mohxmmd/skills",
+  "author": {
+    "name": "Mohammed"
+  },
+  "homepage": "https://github.com/mohxmmd/claude-toolkit/tree/main/skills/charter",
+  "repository": "https://github.com/mohxmmd/claude-toolkit",
   "license": "Apache-2.0",
   "keywords": [
-    "onboarding", "permissions", "safety", "context", "claude-md",
-    "project-setup", "tokens", "guardrails", "memory", "drift"
+    "onboarding",
+    "permissions",
+    "safety",
+    "context",
+    "claude-md",
+    "project-setup",
+    "tokens",
+    "guardrails",
+    "memory",
+    "drift"
   ],
   "userConfig": {
     "git": {
