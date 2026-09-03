@@ -1,214 +1,116 @@
-# CRAFT
+# skills
 
-**Improve existing SaaS interfaces without losing the product's identity.**
+**Claude Code plugins, maintained by Mohammed.**
 
-Same product. Better product.
-
-CRAFT is a [Claude Code](https://claude.com/claude-code) skill for products that
-already exist and already have users. It reads your product's own conventions,
-diagnoses what is actually wrong, makes the smallest change that fixes it, proves
-the change worked, and tells you plainly what it did and what it deliberately
-left alone.
-
-It is not a UI generator. It will not give your product a new look because a
-different look is fashionable.
-
----
-
-## The thirty-second version
-
-```
-> Make this ticket modal cleaner.
-
-CRAFT  no .craft found. Reading your UI...
-       Blade + Tailwind, 6px radius, 4px spacing scale, one blue accent, dense.
-       Wrote .craft/config.md. Edit it any time.
-
-       The modal header competed with the ticket title, and three footer buttons
-       had equal weight, so the intended action was not obvious.
-
-       Before → After → Benefit
-       Three equal-weight footer buttons → one primary, two text actions
-       → the intended action is obvious at a glance instead of needing a read.
-
-       Changed    header hierarchy, footer button weights, metadata row gap 24→16px
-       Preserved  palette, font, density, modal behaviour, field order
-       Verified   1440 / 768 / 375, keyboard focus, loading and error states
-       Watch      the status dropdown truncates at 375px. Out of scope; want it fixed?
-```
-
-No setup. No questionnaire. No new design system.
-
----
-
-## What it is for
-
-| | |
-|---|---|
-| **Who** | Anyone maintaining a UI that already exists: solo developers, product teams, design-system owners |
-| **The problem** | Ask any AI to "improve this screen" and it regenerates it. You get something that photographs well, does not look like your product, and quietly changed six things you did not ask about |
-| **The difference** | CRAFT treats your existing UI as evidence rather than as a first draft. Preservation is enforced by a ledger and a change budget, not by hoping the model behaves |
-| **Not for** | Greenfield design. If nothing exists yet, use [frontend-design](https://github.com/anthropics/claude-code/tree/main/plugins/frontend-design) |
-
----
-
-## Install
+Three of them. Each fixes a different failure, none depends on the others, and
+each is documented in its own directory.
 
 ```bash
 claude plugin marketplace add mohxmmd/skills
-claude plugin install craft@skills
 ```
 
-Then open a project with a UI in it and ask for something.
+| | What it fixes | Install |
+|---|---|---|
+| **[CRAFT](craft/README.md)** | Ask any AI to improve a screen and it regenerates it. CRAFT changes the smallest thing that fixes the problem and tells you what it left alone. | `claude plugin install craft@skills` |
+| **[CHARTER](charter/README.md)** | A rule written in prose is a suggestion. CHARTER turns a two-minute interview into a working agreement *and* enforced permission boundaries. | `claude plugin install charter@skills` |
+| **[TARS](tars/README.md)** | Claude agreeing with you is pleasant and occasionally expensive. TARS answers first, in a line or two, and tells you when you are wrong. | `cd tars && ./install.sh` |
 
-### Also in this marketplace
+---
 
-**[TARS](tars/README.md)** is an output style, not a skill. It changes how Claude
-Code talks to you on every task: answer first in a line or two, details second,
-no filler, and it will tell you when you are wrong. Independent of CRAFT, usable
-with or without it.
+## CRAFT
+
+**Improve existing SaaS interfaces without losing the product's identity.**
+
+For products that already exist and already have users. CRAFT reads your
+product's own conventions, diagnoses what is actually wrong, makes the smallest
+change that fixes it, proves the change worked, and says plainly what it
+deliberately left alone.
+
+Preservation is mechanical rather than hopeful: a ledger of
+`preserve` / `improve` / `uncertain` / `forbidden`, and a six-axis change budget
+that can be exceeded only deliberately and out loud. On both default postures the
+brand axis is zero, so fonts, brand colours and navigation identity do not move
+unless you ask.
+
+```
+/craft make the settings page easier to scan     improve something
+/craft diagnose resources/views/tickets          audit only, never edits
+```
+
+Not for greenfield design. **[Read more](craft/README.md)**
+
+---
+
+## CHARTER
+
+**A charter grants powers and limits them in the same document. So does this.**
+
+Runs once per repository. Surveys the repo, asks two to four questions the repo
+cannot answer itself, then writes a working agreement into `CLAUDE.md` and
+*enforced* boundaries into settings. Afterwards it gets out of the way: about 600
+resident tokens per session, no hooks on an ordinary prompt, nothing rescans.
+
+The distinction it exists for: `CLAUDE.md` is context, not enforced
+configuration. "Never push to main" in a markdown file is a suggestion. A `deny`
+rule is evaluated before the model is consulted.
+
+```
+/charter:init       the whole thing, about a minute
+/charter:status     what is set up, what it costs, what to do next
+/charter:check      drift, context audit, and promotion
+```
+
+**[Read more](charter/README.md)**
+
+---
+
+## TARS
+
+**A no-BS engineering partner.**
+
+An output style rather than a skill, so it changes every response rather than
+waiting to be invoked. Answer first in a line or two, details second, and only
+the details that change what you do next. It corrects a false premise before
+carrying out the task, and it separates what it *verified* from what it merely
+*wrote*.
 
 ```bash
 cd tars && ./install.sh     # then /config -> Output style -> TARS
 ```
 
-It installs as a file rather than a plugin. The reason, and the version it was
-tested on, are in [tars/README.md](tars/README.md#compatibility).
+**Install it as a file, not a plugin.** Claude Code's docs describe plugins
+shipping output styles, and TARS ships a valid manifest for the day that works,
+but on 2.1.112 a plugin-bundled output style installs cleanly and then never
+appears in `/config`. The installer puts the file where every version reads it.
+The test is written up in **[tars/README.md](tars/README.md#compatibility)**.
 
-## Use
-
-```
-/craft make the settings page easier to scan     improve something
-/craft diagnose resources/views/tickets          audit only, never edits
-/craft:atlas                                     (re)read the product
-/craft:atlas doctor                              drift and configuration health
-```
-
-Plain English works everywhere. `Make this modal cleaner` routes exactly like
-`/craft`.
+**[Read more](tars/README.md)**
 
 ---
 
-## Common questions
+## What is in this repository
 
-**Does it work with an existing project?** That is the only thing it is for.
+| Path | What it is |
+|---|---|
+| `craft/` | The CRAFT plugin: skills, router, references, scripts, evals |
+| `charter/` | The CHARTER plugin: skills, references, scripts, docs |
+| `tars/` | The TARS output style, its installer, and its docs |
+| `docs/` | CRAFT's long-form documentation |
+| `.claude-plugin/marketplace.json` | The marketplace manifest listing all three |
 
-**Do I need configuration?** No. CRAFT reads your code and writes a starting
-`.craft/config.md` itself. Editing it is optional.
-
-**Will it redesign everything?** No. Every task runs against a change budget:
-
-| posture | structure | visual | interaction | brand | content | motion |
-|---|---|---|---|---|---|---|
-| conservative | 0 | 1 | 1 | **0** | 1 | 0 |
-| evolutionary *(default)* | 1 | 2 | 2 | **0** | 1 | 1 |
-| transformative | free | free | free | explicit only | free | free |
-
-`brand: 0` on both default postures. Fonts, brand colours, logo treatment,
-navigation identity and product terminology do not move unless you ask. If a fix
-genuinely needs more budget than it has, CRAFT stops and says which axis and why,
-rather than quietly exceeding it or quietly giving up.
-
-**Can I preserve specific things?** Yes, and it is a hard gate rather than a
-preference. Anything under `## Do not change` in `config.md` will not be touched,
-and CRAFT will say so rather than working around it.
-
-**Can I define my own taste?** Optionally. The default is to preserve the visual
-language your product already has. If you want direction, describe it in a
-sentence, name a vocabulary word (`minimal`, `dense`, `editorial`, `technical`),
-or point at a reference. References are mined for principles, never cloned, and
-if a reference conflicts with your product, your product wins.
-
-**How does it verify changes?** Verification is routed to risk: deterministic
-checks for a spacing tweak, screenshots and a keyboard walk for a modal, full
-verification for a redesign. When no dev server is reachable it says
-**"implemented, not visually verified"**. It never says "done" for work it did
-not check.
-
-**Can it decide to change nothing?** Yes, and that is a designed outcome. If your
-screen is already good, CRAFT says so and shows what it checked.
-
-**Is it slow or expensive?** A normal task loads about 4,000 tokens of skill
-context. The core is 1,497 tokens and the router loads two or three references
-rather than a library. CI fails the build if any budget is exceeded.
-
----
-
-## How it works
-
-```
-your request
-   ↓
-Router      intent · surface · scope · risk · budget · what to load · how to verify
-   ↓
-Atlas       what this product is: measured tokens, conventions, your config
-   ↓
-Refit       diagnose → preservation ledger → decide → smallest sufficient change
-   ↓
-Verify      routed to risk, bounded to two inspection rounds
-   ↓
-Improvement Summary
-```
-
-Four ideas carry it:
-
-1. **The router loads only what the task needs.** Intelligence is deciding what
-   to read, not having everything available.
-2. **Preservation is mechanical.** A ledger of `preserve` / `improve` /
-   `uncertain` / `forbidden`, plus a six-axis budget that can be exceeded only
-   deliberately and out loud.
-3. **One human file.** `.craft/config.md` is the only file you ever need to open.
-4. **Value is visible.** Every task ends with what changed, why, what was
-   preserved, and what was verified.
-
-More detail: [docs/how-it-works.md](docs/how-it-works.md) ·
-[docs/configuration.md](docs/configuration.md)
-
----
-
-## What CRAFT writes into your project
-
-```
-.craft/
-├── config.md        the only file you edit. yours.
-├── atlas/           measured knowledge. generated, disposable, regenerable.
-├── state.json       machine state: hashes, dials, routing cache.
-└── cache/           ephemeral. gitignored.
-```
-
-Your personal preferences live in `~/.craft/`, outside every repository, so they
-travel with you across projects and can never be committed to a team repo by
-accident.
-
-Updating CRAFT replaces the skill and touches neither directory.
-
----
-
-## Status
-
-**0.1.0.** The core loop works and is measured. Browser-driven verification, the
-deterministic detector, surface memory and reference grounding are specified and
-scheduled; see the [changelog](CHANGELOG.md) for what is and is not in this
-release, including its known limitations.
-
----
-
-## Inspirations
-
-CRAFT was built by studying the existing ecosystem, and it did not invent
-progressive disclosure, design dials, design-DNA extraction, deterministic design
-checks or persistent taste profiles. It combines them for a different objective:
-preserve-first evolution of products that already exist.
-
-Full credit, and what was learned from each project including where their
-approach was deliberately not followed, is in
-**[docs/inspirations.md](docs/inspirations.md)**.
+CRAFT's changelog is [CHANGELOG.md](CHANGELOG.md) at the root, because its
+release tooling reads it there. CHARTER and TARS keep their own, in their own
+directories.
 
 ## Contributing
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). The short version: every addition is paid
 for on every task that loads it, so a pull request should say what it costs and
 which observed failure it fixes.
+
+TARS is a behavioural prompt rather than code, so a change to it needs a
+transcript instead of an argument. See
+[tars/CONTRIBUTING.md](tars/CONTRIBUTING.md).
 
 ## Author
 
