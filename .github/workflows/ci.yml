@@ -30,6 +30,13 @@ jobs:
         run: |
           node -e "JSON.parse(require('fs').readFileSync('.claude-plugin/marketplace.json','utf8'))"
           node -e "JSON.parse(require('fs').readFileSync('craft/.claude-plugin/plugin.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('tars/.claude-plugin/plugin.json','utf8'))"
+
+      - name: Check the TARS installer
+        run: |
+          sh -n tars/install.sh
+          test -f tars/output-styles/TARS.md
+          head -1 tars/output-styles/TARS.md | grep -q '^---$'
 
       - name: Version consistency
         run: node craft/scripts/version.mjs --check

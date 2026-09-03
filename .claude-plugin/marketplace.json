@@ -1,7 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
   "name": "skills",
-  "owner": { "name": "Mohammed" },
+  "owner": {
+    "name": "Mohammed"
+  },
   "metadata": {
     "description": "Claude Code skills, maintained by Mohammed.",
     "version": "0.1.0"
@@ -12,10 +14,38 @@
       "source": "./craft",
       "description": "Improve existing SaaS interfaces without losing the product's identity. Preserve-first UI/UX evolution for Claude Code.",
       "version": "0.1.0",
-      "author": { "name": "Mohammed" },
+      "author": {
+        "name": "Mohammed"
+      },
       "license": "Apache-2.0",
       "category": "design",
-      "keywords": ["ui", "ux", "design", "redesign", "accessibility", "design-system"]
+      "keywords": [
+        "ui",
+        "ux",
+        "design",
+        "redesign",
+        "accessibility",
+        "design-system"
+      ]
+    },
+    {
+      "name": "tars",
+      "source": "./tars",
+      "description": "A no-BS engineering partner output style. Answers first in a line or two, challenges weak reasoning, separates implemented from verified, and stays in scope.",
+      "version": "1.1.0",
+      "author": {
+        "name": "Mohammed"
+      },
+      "license": "Apache-2.0",
+      "category": "workflow",
+      "keywords": [
+        "output-style",
+        "code-review",
+        "direct",
+        "concise",
+        "verification",
+        "scope"
+      ]
     }
   ]
 }

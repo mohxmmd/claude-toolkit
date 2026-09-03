@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-plugin.json",
+  "name": "charter",
+  "displayName": "CHARTER",
+  "version": "0.1.0",
+  "description": "A charter grants powers and limits them in the same document. Turns a two-minute interview into a project's working agreement and its enforced permission boundaries, then stays out of the way at about 600 tokens a session.",
+  "author": { "name": "Mohammed" },
+  "homepage": "https://github.com/mohxmmd/skills/tree/main/charter",
+  "repository": "https://github.com/mohxmmd/skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "onboarding", "permissions", "safety", "context", "claude-md",
+    "project-setup", "tokens", "guardrails", "memory", "drift"
+  ],
+  "userConfig": {
+    "git": {
+      "type": "string",
+      "title": "Default git autonomy",
+      "description": "Pre-selected answer for new repositories. propose-only | local-commits | full. Force-push is denied in all three.",
+      "default": "local-commits"
+    },
+    "scope": {
+      "type": "string",
+      "title": "Where boundaries are written",
+      "description": "auto | project | local. auto picks .claude/settings.json for team repos and .claude/settings.local.json for solo ones.",
+      "default": "auto"
+    },
+    "guidance": {
+      "type": "string",
+      "title": "How much Charter explains itself",
+      "description": "quiet | explain. quiet states an assumption in one line and continues; explain also gives the reasoning and names which rule or threshold fired.",
+      "default": "quiet"
+    }
+  }
+}

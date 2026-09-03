@@ -61,6 +61,20 @@ claude plugin install craft@skills
 
 Then open a project with a UI in it and ask for something.
 
+### Also in this marketplace
+
+**[TARS](tars/README.md)** is an output style, not a skill. It changes how Claude
+Code talks to you on every task: answer first in a line or two, details second,
+no filler, and it will tell you when you are wrong. Independent of CRAFT, usable
+with or without it.
+
+```bash
+cd tars && ./install.sh     # then /config -> Output style -> TARS
+```
+
+It installs as a file rather than a plugin. The reason, and the version it was
+tested on, are in [tars/README.md](tars/README.md#compatibility).
+
 ## Use
 
 ```
