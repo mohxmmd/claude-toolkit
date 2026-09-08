@@ -1,57 +1,70 @@
 ---
 name: setup
-description: Set up the whole toolkit in this repository in one pass — run Charter's interview, wire TARS as the output style, and point UI work at Craft. Use when the user runs /toolkit:setup or asks to set up, initialise, or configure the Claude Toolkit.
+description: Show what the Claude Toolkit has set up in this repository and the exact next command to type. Use when the user runs /toolkit:setup or asks how to get started with the toolkit, what is configured here, or what to do next.
 disable-model-invocation: true
-argument-hint: "[--dry-run]"
+allowed-tools:
+  - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/state.sh *)
 ---
 
 # Toolkit: set up
 
-One pass, one repository. This command does not replace `/charter:init` — it
-runs it and reports what the other two components ended up doing.
+State:
 
-`--dry-run` proposes everything and writes nothing.
+!`"${CLAUDE_PLUGIN_ROOT}/scripts/state.sh" .`
 
-## What is already true when this runs
+---
 
-Charter, Craft and TARS are declared as **dependencies** of this bundle, and
-Claude Code disables a plugin whose dependencies are not enabled. So if you are
-reading this, all three are installed and enabled. Do not check, and do not
-offer to install anything.
+## What this command is
 
-The one exception is a `--plugin-dir` load straight from a checkout, where
-dependencies cannot resolve. In that situation this command does not load at
-all, so it cannot be the thing reporting the problem.
+An orientation. It reads the state above and tells the user the one command to
+type next.
 
-## Step 1 — Run Charter
+**It writes nothing, and it cannot run the other components' commands.**
+`/charter:init`, `/craft:atlas` and `/craft` are all marked
+`disable-model-invocation`, which means they run only when a person types them.
+That is deliberate on their part: each one writes files and asks questions, and
+a command that writes files should not fire because a model inferred it might be
+wanted.
 
-Invoke `/charter:init`, passing `--dry-run` through if it was given.
+So do not attempt to invoke them, do not use the Skill tool to reach them, and
+above all **do not reimplement what they do.** Writing a working agreement or a
+permission rule here would produce artifacts Charter did not author and cannot
+later diff, check, or update.
 
-Charter owns the interview, the diff, and **every write**. Its companion step
-will detect that Craft and TARS are enabled and offer to wire them.
-
-Do not answer on the user's behalf. Do not pre-empt the question by writing
-settings here. Do not write any file yourself. Everything this bundle promises
-is delivered by Charter's own writes, which is what keeps one component
-responsible for one set of artifacts.
-
-## Step 2 — Report
-
-Six lines maximum, and only what is true after Charter finished. Read the values
-back from what Charter reported; do not re-derive them.
+## Render this, from the values above
 
 ```
-TOOLKIT   <repo name>
+TOOLKIT   <repo>
 
-✓/✗ Charter    <n> boundaries in <scope> · <fence line count>-line agreement
-✓/✗ TARS       outputStyle: <value> in <file>   (or: declined)
-✓/✗ Craft      routing line in the agreement    (or: declined)
+✓/✗ Charter    <fence> · boundaries: <yes/no>      or: not run
+✓/✗ Craft      .craft/config.md                    or: not run
+✓/✗ TARS       <tars.style> in <tars.set_in>       or: not set
 
-Next: <single action, or "nothing — you're set">
+Next: <one command>
 ```
 
-If this run set `outputStyle`, the Next line must be `/clear — output styles
-load at session start`. The session the user is sitting in will otherwise look
-like nothing happened, and that reads as a broken install.
+Marking rules:
 
-Then stop. Do not continue into unrelated work.
+- Charter is `✓` only when `charter.state: yes` **and** `charter.boundaries: yes`.
+  A fence with no deny rules is context without enforcement, which is the exact
+  gap Charter exists to close — mark it `⚠` and say "no enforced boundaries".
+- TARS is `✓` when `tars.style` is anything but `none`. Both `TARS` and
+  `tars:TARS` are valid; they are the file and plugin installs respectively.
+
+## The next command
+
+Exactly one line, the first row that applies:
+
+| State | Next |
+| --- | --- |
+| `charter.state: no` | `/charter:init` — two to five questions, about a minute |
+| `charter.boundaries: no` | `/charter:init` — this repo has no enforced boundaries |
+| `craft.config: no` | `/craft:atlas` — reads the product, writes `.craft/config.md` |
+| `tars.style: none` | `/config` → Output style → `tars:TARS` → then `/clear` |
+| Everything set | `nothing — you're set. /charter:status any time` |
+
+Charter comes before Craft. Charter's own setup offers to wire TARS and add the
+`/craft` routing line, so running it first means the other two need less.
+
+Print the block, print the next line, and stop. No commentary, no summary
+paragraph, no offer to do the work yourself.

@@ -10,10 +10,16 @@ claude plugin install toolkit@claude-toolkit
 Restart Claude Code, then in the repository you want set up:
 
 ```
-/toolkit:setup
+/charter:init       the actual setup — two to five questions, about a minute
+/toolkit:setup      where am I, and what should I type next
 ```
 
-Two to five questions, about a minute, and a diff before anything is written.
+`/charter:init` does the work: it surveys the repo, asks its questions, shows a
+diff, and writes the working agreement and boundaries. It also offers to wire
+TARS and Craft, since the bundle guarantees both are installed.
+
+`/toolkit:setup` is an orientation. It reads what is configured in this
+repository and prints the one command to type next. **It writes nothing.**
 
 ---
 
@@ -25,9 +31,15 @@ Two to five questions, about a minute, and a diff before anything is written.
 | **[Craft](../../skills/craft/README.md)** | UI/UX changes that fix the smallest thing rather than regenerating the screen |
 | **[TARS](../../output-styles/README.md)** | Answers first, in a line or two, and tells you when you are wrong |
 
-The bundle itself contains no behaviour beyond `/toolkit:setup`. It is a
-manifest that declares the other three as dependencies, and one skill that runs
-Charter and reports the result.
+The bundle itself contains almost nothing: a manifest declaring the other three
+as dependencies, and one read-only orientation command.
+
+**It cannot run the other components' commands, and does not try.**
+`/charter:init` and `/craft:atlas` are marked `disable-model-invocation` — they
+run only when a person types them, because each writes files and asks questions.
+A model deciding on its own to rewrite your permissions is exactly the failure
+that flag exists to prevent. The bundle's value is the dependency install, not
+automation of commands that should stay deliberate.
 
 ---
 

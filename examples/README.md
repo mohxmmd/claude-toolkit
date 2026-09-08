@@ -5,15 +5,15 @@ READMEs — nothing here does anything the tools do not already do.
 
 ## Setting up a repository you have just cloned
 
-If you installed the bundle, one command covers everything:
+If you installed the bundle and want to know where you are:
 
 ```
 /toolkit:setup
 ```
 
-That runs Charter's interview and reports what all three components ended up
-doing. Everything below is what it does under the hood, and what you would type
-if you installed the components separately.
+That prints what is configured in this repository and the one command to type
+next. It writes nothing — the components' own commands do the work, and they
+run only when you type them.
 
 Charter runs once per repository and then gets out of the way.
 

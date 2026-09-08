@@ -11,7 +11,7 @@ claude plugin install toolkit@claude-toolkit
 Restart Claude Code, then in the repository you want set up:
 
 ```
-/toolkit:setup
+/charter:init
 ```
 
 ---
@@ -23,6 +23,7 @@ Two files. A manifest and one skill.
 ```
 bundles/toolkit/
 ├── .claude-plugin/plugin.json     dependencies + metadata
+├── scripts/state.sh               read-only repository state
 └── skills/setup/SKILL.md          /toolkit:setup
 ```
 
@@ -87,25 +88,47 @@ claude --plugin-dir ./skills/charter \
        --plugin-dir ./output-styles
 ```
 
-You lose only `/toolkit:setup`, which is a thin wrapper around `/charter:init`
-anyway.
+You lose only `/toolkit:setup`, which is an orientation command — the three
+components' own commands are unaffected.
 
 ---
 
 ## What `/toolkit:setup` does
 
-Very little, on purpose:
+Reads what is configured in the current repository and prints the one command to
+type next. That is all. It writes nothing.
 
-1. Runs `/charter:init`.
-2. Reports what all three components ended up doing.
+```
+TOOLKIT   my-app
 
-It writes nothing itself. Every file that appears comes from Charter's own
-writes, which keeps one component responsible for one set of artifacts. Charter
-already shows a diff and asks before writing, and routing the bundle's promises
-through it means there is exactly one thing to audit.
+✗ Charter    not run
+✗ Craft      not run
+✓ TARS       tars:TARS in .claude/settings.local.json
 
-It does not check whether the three plugins are installed, because it cannot be
-running unless they are — see the dependency behaviour above.
+Next: /charter:init — two to five questions, about a minute
+```
+
+### Why it does not just run Charter for you
+
+It was written that way first. It could not work.
+
+`/charter:init`, `/craft:atlas` and `/craft` are all marked
+`disable-model-invocation: true`. That removes them from the model's view
+entirely — verifiable by loading Charter and asking Claude to list its skills,
+where `charter:init` appears only if the flag is stripped. No model can invoke
+them, through the Skill tool or otherwise.
+
+That flag is correct and should stay. Each of those commands writes files and
+asks questions. A command that rewrites your permission rules should fire
+because a person typed it, not because a model inferred it might be wanted.
+
+The alternative — having the bundle reimplement Charter's writes — is worse than
+the problem. It would produce a working agreement and permission rules that
+Charter did not author and therefore cannot diff, check, or update, and two
+components writing the same artifacts is how configuration silently diverges.
+
+So the bundle does the part that genuinely needs no judgment: install the three
+plugins, and point at the right next command.
 
 ---
 

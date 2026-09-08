@@ -45,12 +45,22 @@ installed exists in the session you typed it into.
 Then, in the repository you want to set up:
 
 ```
-/toolkit:setup
+/charter:init
 ```
 
-That runs Charter's interview and reports what all three components ended up
-doing. Two to five questions, about a minute, and a diff before anything is
-written.
+Two to five questions, about a minute, and a diff before anything is written.
+Because the bundle guarantees Craft and TARS are installed, Charter also offers
+to set your output style and add a `/craft` routing line.
+
+Lost at any point:
+
+```
+/toolkit:setup      what is configured here, and the one command to type next
+```
+
+It reads state and prints a next step. It writes nothing, and it cannot run the
+commands for you — `/charter:init` and `/craft:atlas` are user-invocation only,
+by design, because they write files.
 
 ---
 
@@ -221,6 +231,7 @@ it costs per session, and the one next thing worth doing.
 | TARS is selected, nothing changed | Output styles load at session start | `/clear` |
 | Style not in `/config` | Wrong name — `TARS` vs `tars:TARS` | Pick the one matching your install path |
 | Bundle installed, `/toolkit:setup` missing | A dependency is disabled, so the bundle is too | `claude plugin list`, enable the missing one |
+| `/toolkit:setup` will not run Charter for you | By design — `/charter:init` is user-invocation only | Type `/charter:init` yourself |
 | Charter says a command is missing that exists | It only records commands that exit zero when probed | Run the probe yourself; if it fails, Charter is right |
 
 ---

@@ -21,7 +21,8 @@ style** — it changes every response until you switch it off. That difference i
 the only thing you need to know to pick what you want.
 
 **[Toolkit](bundles/toolkit/README.md)** is a fourth plugin that installs all
-three and gives you `/toolkit:setup` to wire them up. It contains nothing else.
+three in one command, plus `/toolkit:setup` to tell you what is configured in a
+repository and what to type next. It contains nothing else.
 
 New here? **[docs/SETUP.md](docs/SETUP.md)** is the install-and-configure guide.
 Forking it? **[docs/PUBLISHING.md](docs/PUBLISHING.md)** is how to get your copy
@@ -117,7 +118,8 @@ claude plugin marketplace add mohxmmd/claude-toolkit
 claude plugin install toolkit@claude-toolkit
 ```
 
-Restart Claude Code, then `/toolkit:setup` in the repository you want set up.
+Restart Claude Code, then `/charter:init` in the repository you want set up.
+`/toolkit:setup` tells you where you are if you lose the thread.
 
 ### One thing
 

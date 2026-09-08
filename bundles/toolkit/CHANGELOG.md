@@ -15,12 +15,20 @@ pinned range no longer resolves.
 
 - The bundle. Declares Charter `^0.1.0`, Craft `^0.1.0` and TARS `^1.1.0` as
   dependencies, so one install command produces all three.
-- `/toolkit:setup` — runs `/charter:init` and reports what all three components
-  ended up doing. Writes nothing itself; every file that appears comes from
-  Charter's own writes.
+- `/toolkit:setup` — reads what is configured in the current repository and
+  prints the one command to type next. Writes nothing.
+- `scripts/state.sh` — read-only repository state, so the report is derived
+  rather than guessed.
 
 ### Notes
 
+- `/toolkit:setup` does **not** run the other components' commands, and an early
+  draft that tried to was unimplementable. `/charter:init` and `/craft:atlas`
+  are marked `disable-model-invocation`, which removes them from the model's
+  view entirely; no model can invoke them. The flag is correct — those commands
+  write files and ask questions, and should fire because a person typed them.
+  Reimplementing their writes here would be worse still: artifacts their owning
+  component did not author and cannot later diff or update.
 - Ranges are pinned deliberately. An unpinned dependency drags a broken
   component release into every new install of the bundle.
 - The bundle cannot be loaded with `--plugin-dir`: dependencies cannot resolve
