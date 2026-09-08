@@ -9,26 +9,40 @@ The bundle's version tracks its own manifest and skill, not the components it
 depends on. A component release does not require a bundle release unless the
 pinned range no longer resolves.
 
+## [0.1.1] — 2026-09-08
+
+### Fixed
+
+- **`/toolkit:setup` could not work.** It instructed the model to invoke
+  `/charter:init`, which is marked `disable-model-invocation: true` — that
+  removes a skill from the model's view entirely, so no model can call it,
+  through the Skill tool or otherwise. The command failed on its first real use.
+
+  It is now an orientation: it reads what is configured in the current
+  repository and prints the one command to type next. It writes nothing and
+  calls nothing.
+
+  The flag on `/charter:init` is correct and stays. That command rewrites
+  permission rules, and it should fire because a person typed it. The other
+  possible fix — having the bundle reimplement Charter's writes — would be worse
+  than the bug: artifacts Charter did not author and cannot later diff, check,
+  or update.
+
+### Added
+
+- `scripts/state.sh` — read-only repository state, so the report is derived
+  rather than guessed.
+
 ## [0.1.0] — 2026-09-08
 
 ### Added
 
 - The bundle. Declares Charter `^0.1.0`, Craft `^0.1.0` and TARS `^1.1.0` as
   dependencies, so one install command produces all three.
-- `/toolkit:setup` — reads what is configured in the current repository and
-  prints the one command to type next. Writes nothing.
-- `scripts/state.sh` — read-only repository state, so the report is derived
-  rather than guessed.
+- `/toolkit:setup`. Broken on release; see 0.1.1.
 
 ### Notes
 
-- `/toolkit:setup` does **not** run the other components' commands, and an early
-  draft that tried to was unimplementable. `/charter:init` and `/craft:atlas`
-  are marked `disable-model-invocation`, which removes them from the model's
-  view entirely; no model can invoke them. The flag is correct — those commands
-  write files and ask questions, and should fire because a person typed them.
-  Reimplementing their writes here would be worse still: artifacts their owning
-  component did not author and cannot later diff or update.
 - Ranges are pinned deliberately. An unpinned dependency drags a broken
   component release into every new install of the bundle.
 - The bundle cannot be loaded with `--plugin-dir`: dependencies cannot resolve

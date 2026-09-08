@@ -153,6 +153,19 @@ claude plugin marketplace remove claude-toolkit
 
 ## Releasing a version
 
+> **Pushing to `main` does not ship anything.** The plugin cache is keyed by
+> version. If you change a plugin's files without bumping its version,
+> `claude plugin update` replies *"already at the latest version"* and every
+> existing user keeps running the old code — including you.
+>
+> ```console
+> $ claude plugin update toolkit@claude-toolkit
+> ✔ toolkit is already at the latest version (0.1.0).      # nothing happened
+> ```
+>
+> **Every change users should receive needs a version bump.** A one-line
+> documentation fix inside a plugin directory is a patch release.
+
 Versions live in two places that must agree: each `plugin.json` and the matching
 entry in `.claude-plugin/marketplace.json`. CI enforces this, and there is a
 built-in command that checks it too:
@@ -193,8 +206,12 @@ in the same commit. CI fails the build if it does not resolve.
 Users get the new version with:
 
 ```bash
-claude plugin update toolkit@claude-toolkit
+claude plugin marketplace update claude-toolkit    # refresh the catalogue first
+claude plugin update toolkit@claude-toolkit        # then the plugin
 ```
+
+Both steps matter: the first refreshes the marketplace's view of what versions
+exist, the second fetches the plugin. Then restart Claude Code.
 
 ---
 
@@ -236,4 +253,6 @@ tracker.
 | `/toolkit:setup` missing after installing the bundle | A dependency is disabled, so the bundle is disabled too |
 | A plugin's `source` path 404s | `source` in the marketplace is relative to the repository root and is case-sensitive |
 | Version mismatch on install | `plugin.json` and the marketplace entry disagree. Run the check above |
+| Pushed a fix, users still see the old behaviour | You did not bump the version. The cache is keyed by it |
+| `plugin update` says "already at the latest version" | Same cause — bump the version, push, then update |
 | Output style not in `/config` | Wrong name — a plugin install is `tars:TARS`, a file install is `TARS` |

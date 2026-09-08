@@ -13,7 +13,7 @@
       "name": "toolkit",
       "source": "./bundles/toolkit",
       "description": "Installs Charter, Craft and TARS together and wires them up in one pass. The one-command way in.",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "author": {
         "name": "Mohammed"
       },
