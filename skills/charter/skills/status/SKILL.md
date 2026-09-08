@@ -5,6 +5,7 @@ disable-model-invocation: true
 allowed-tools:
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/fingerprint.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh *)
+  - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh *)
 ---
 
 # Charter: status
@@ -17,9 +18,13 @@ Context audit:
 
 !`"${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh" .`
 
+Companions:
+
+!`"${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh" .`
+
 ---
 
-Render exactly the block below from the two outputs above. Every line must trace to a value in them — infer nothing, score nothing, and do not read any other file.
+Render exactly the block below from the three outputs above. Every line must trace to a value in them — infer nothing, score nothing, and do not read any other file.
 
 ```
 CHARTER   <repo name> · <branch> · <initialised DATE | not initialised>
@@ -45,6 +50,7 @@ Next: <single concrete action>
   - `warn.memory_index` — MEMORY.md past 200 lines, so the tail never loads.
   - `hint.scopeable` — a rules file with no `paths:` key, paying tokens every session for something that matters in one directory.
   - `hint.derivable` — a directory tree or dependency list the model can derive.
+  - A recorded companion that no longer resolves — `charter.json` names an `outputStyle` that `style.name` says does not exist, or the fence points at `/craft` while `companion.craft` is `absent`. Both fail silently, which is why they are worth a line.
 - Report the token figure as an estimate. It is bytes divided by four, and saying so costs one word.
 
 ## Next action
@@ -57,6 +63,11 @@ Exactly one line, and it must be the highest-value thing available:
 | `permissions.has_deny: no` | `/charter:init` — this repo has no enforced boundaries |
 | Any finding present | `/charter:check` — *n* findings |
 | Session cost above ~2,000 tokens | `/charter:check` — *n* tokens of always-loaded context look trimmable |
+| A recorded companion no longer resolves | `/charter:check` — the output style no longer exists |
 | Nothing outstanding | `nothing — you're set` |
+
+Companions get **no line of their own when nothing is wrong.** The block reports
+what is broken and what it costs; a permanent row saying an optional tool is
+working as configured is a row nobody reads twice.
 
 Print the block and stop. No commentary, no summary paragraph, no offer of further work.

@@ -58,6 +58,48 @@ check "no deny rules yet"           "permissions.has_deny: no"       "$S"
 L=$(printf '%s\n' "$S" | wc -l | tr -d ' ')
 [ "$L" -le 60 ] && ok "audit output ${L} lines (<=60)" || bad "audit output ${L} lines (>60)"
 
+echo "companions"
+C() { CLAUDE_CONFIG_DIR="$F/$1" bash "$ROOT/scripts/companions.sh" "$F/${2:-go-cli}"; }
+
+S=$(C cfg-none)
+check "none: craft absent"          "companion.craft: absent"        "$S"
+check "none: tars absent"           "companion.tars: absent"         "$S"
+check "none: no style to offer"     "style.name: none"               "$S"
+
+S=$(C cfg-plugin)
+check "plugin: craft enabled"       "companion.craft: enabled"       "$S"
+check "plugin: tars enabled"        "companion.tars: enabled"        "$S"
+check "plugin: namespaced name"     "style.name: tars:TARS"          "$S"
+
+# The pair that catches a constructed name. A file install is NOT "tars:TARS".
+S=$(C cfg-file)
+check "file: tars not a plugin"     "companion.tars: absent"         "$S"
+check "file: bare style name"       "style.name: TARS"               "$S"
+case "$S" in *"style.name: tars:TARS"*) bad "file: emitted plugin name for a file install";; *) ok "file: no plugin prefix";; esac
+
+# Installed but switched off must not be offered — writing the name would
+# produce a setting that resolves to nothing.
+S=$(C cfg-disabled)
+check "disabled: craft disabled"    "companion.craft: disabled"      "$S"
+check "disabled: tars disabled"     "companion.tars: disabled"       "$S"
+check "disabled: nothing to offer"  "style.name: none"               "$S"
+
+S=$(C cfg-plugin wired)
+check "wired: craft seen in fence"  "craft.referenced: yes"          "$S"
+check "wired: local style read"     "style.set_local: tars:TARS"     "$S"
+
+S=$(C cfg-plugin go-cli)
+check "unwired: no fence"           "craft.referenced: no-fence"     "$S"
+
+L=$(C cfg-plugin | wc -l | tr -d ' ')
+[ "$L" -le 20 ] && ok "companions output ${L} lines (<=20)" || bad "companions output ${L} lines (>20)"
+
+# Never writes. Nothing under the fixture may change.
+B=$(find "$F/wired" -type f -newer "$F/wired/CLAUDE.md" 2>/dev/null | grep -v '/.git/' | wc -l | tr -d ' ')
+C cfg-plugin wired > /dev/null
+A=$(find "$F/wired" -type f -newer "$F/wired/CLAUDE.md" 2>/dev/null | grep -v '/.git/' | wc -l | tr -d ' ')
+[ "$B" = "$A" ] && ok "companions writes nothing" || bad "companions touched the repo"
+
 echo "size gates"
 N=$(find "$ROOT" -type f \( -name '*.md' -o -name '*.sh' -o -name '*.json' \) \
       -not -path '*/tests/fixtures/*' -not -path '*/.git/*' -exec cat {} + | wc -l | tr -d ' ')

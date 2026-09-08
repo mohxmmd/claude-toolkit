@@ -1,12 +1,13 @@
 ---
 name: init
-description: Set up Charter in this repository. Surveys the repo, verifies its commands, asks two to four questions, then writes a working agreement into CLAUDE.md and enforced permission boundaries into settings. Use when the user runs /charter:init or asks to set up, initialise, or configure Charter.
+description: Set up Charter in this repository. Surveys the repo, verifies its commands, asks two to four questions, then writes a working agreement into CLAUDE.md and enforced permission boundaries into settings. Also offers to connect Craft and TARS when they are already installed. Use when the user runs /charter:init or asks to set up, initialise, or configure Charter.
 disable-model-invocation: true
 argument-hint: "[--quiet | --dry-run]"
 allowed-tools:
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/survey.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/fingerprint.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh *)
+  - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh *)
 ---
 
 # Charter: initialise
@@ -17,6 +18,9 @@ Produce four artifacts for this repository, in one pass, and then stop:
 2. **Boundaries** — `deny` / `ask` / `allow` rules in the project's settings file.
 3. **Area rules** — path-scoped `.claude/rules/*.md` for the dangerous or convention-heavy directories.
 4. **State** — `.claude/charter.json`, never loaded into a session.
+
+A fifth is written only when the user asks for it: an `outputStyle` in
+`.claude/settings.local.json`, when a companion tool is already installed.
 
 Arguments: `--quiet` skips explanatory commentary. `--dry-run` shows the proposal and writes nothing.
 
@@ -36,7 +40,7 @@ Run once:
 ${CLAUDE_PLUGIN_ROOT}/scripts/survey.sh .
 ```
 
-Then run `${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh .` to learn what this repo already loads into every session.
+Then run `${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh .` to learn what this repo already loads into every session, and `${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh .` to learn which toolkit companions are installed. All three are read-only.
 
 Read [references/survey.md](../../references/survey.md) for how to interpret the output and what each key drives.
 
@@ -83,6 +87,24 @@ Do **not** ask about: production confirmation (always required), secrets (always
 
 Phrase every option in plain language. The user should not need to know what a permission rule is to answer.
 
+## Step 4b — Offer the companions, when there are any
+
+Skip this entirely unless `companions.sh` reported `companion.craft: enabled` or
+a `style.name` other than `none`. In a repository with neither, say nothing.
+
+Read [references/companions.md](../../references/companions.md) before writing
+anything here. It carries the one rule that actually breaks: **TARS has two
+install paths exposing two different names**, and writing the wrong one produces
+a setting that resolves to nothing and reports no error.
+
+One extra `AskUserQuestion`, multi-select, options suppressed when already true.
+This is the only question permitted past the four-question cap, and it earns that
+by being absent from every repository where it has nothing to offer.
+
+`outputStyle` is always written to `.claude/settings.local.json`, including when
+Step 5 sends the boundaries to the committed file. Boundaries are a team
+decision; how Claude talks to someone is not.
+
 ## Step 5 — Compile the answers into rules
 
 Read [references/policy.md](../../references/policy.md) **before generating any rule**. It carries the preset tables and the eleven syntax gotchas that decide whether a generated rule binds or silently matches nothing. Generating rules without it produces output that looks correct and does nothing.
@@ -101,6 +123,7 @@ PROPOSED CHANGES                              nothing is written until you accep
 
 CLAUDE.md                        +N lines inside a charter fence
 .claude/settings.json            +N permission rules
+.claude/settings.local.json      outputStyle (omit when not offered/accepted)
 .claude/rules/<area>.md          new, loads only when those files are opened
 .claude/charter.json             new, never loaded into a session
 
@@ -122,6 +145,7 @@ Write `.claude/charter.json`:
   "commands": { "test": "...", "lint": "...", "typecheck": null, "build": null },
   "answers": { "collab": "team", "git": "local-commits", "db": "read-only" },
   "scope": ".claude/settings.json",
+  "companions": { "style": "tars:TARS", "style_scope": ".claude/settings.local.json", "craft": true },
   "paths_referenced": ["..."]
 }
 ```
@@ -131,6 +155,14 @@ Offer, do not impose, a `.gitignore` entry for `.claude/settings.local.json` and
 ## Step 7 — Report
 
 Six lines maximum. What was written, what was verified, what was left unknown, and the one next action. Then stop — do not continue into unrelated work.
+
+Two additions, each at most one line and only when true:
+
+- If this run set `outputStyle`, the next action is `/clear`. Output styles load
+  at session start, so the session the user is sitting in will otherwise look
+  unchanged, and that reads as a broken setup.
+- If a companion is **not** installed and would have been useful here, name the
+  one install command. Once, without arguing for it.
 
 ## Re-running
 

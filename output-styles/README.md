@@ -63,23 +63,32 @@ including a case where the default style already does fine.
 ## Quick start
 
 ```bash
-git clone https://github.com/mohxmmd/claude-toolkit.git
-cd claude-toolkit
-./install.sh
+claude plugin marketplace add mohxmmd/claude-toolkit
+claude plugin install tars@claude-toolkit
 ```
 
 Then, in Claude Code:
 
 1. Run `/config`
-2. Pick **TARS** under **Output style**
+2. Pick **tars:TARS** under **Output style**
 3. Run `/clear`
 
 That's it. Output styles load at session start, so the `/clear` matters.
 
-<details>
-<summary>Manual install (no script)</summary>
+The `tars:` prefix is not decoration — plugin styles are namespaced, and a
+setting that says `TARS` will not find `tars:TARS`. See
+[Compatibility](#compatibility) for why both names exist.
 
-Copy one file:
+<details>
+<summary>Install as a file instead (no marketplace)</summary>
+
+```bash
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit
+./install.sh
+```
+
+Or copy the one file directly:
 
 ```bash
 mkdir -p ~/.claude/output-styles
@@ -87,14 +96,23 @@ curl -fsSL https://raw.githubusercontent.com/mohxmmd/claude-toolkit/main/output-
   -o ~/.claude/output-styles/TARS.md
 ```
 
-Then `/config` → Output style → TARS → `/clear`.
+Then `/config` → Output style → **TARS** (no prefix) → `/clear`.
 
 For a single project instead of everywhere, put the file in
-`.claude/output-styles/TARS.md` inside the repo.
+`.claude/output-styles/TARS.md` inside the repo. Commit it and the whole team
+gets the same style.
 </details>
 
 <details>
 <summary>Uninstall</summary>
+
+Plugin install:
+
+```bash
+claude plugin uninstall tars@claude-toolkit
+```
+
+File install:
 
 ```bash
 rm ~/.claude/output-styles/TARS.md
@@ -191,28 +209,64 @@ rules.
 
 ## Compatibility
 
-Verified on Claude Code **2.1.112** (Linux): user-level install at
-`~/.claude/output-styles/TARS.md` loads correctly and takes effect.
+Two install paths, both verified on Claude Code **2.1.197** (Linux). They differ
+in one way that matters: **the name you select.**
 
-**Do not install TARS as a plugin yet, even though this repo is a Claude Code
-marketplace.** TARS ships a valid plugin manifest, so this works:
+| Install | Style name | Where it lives |
+|---|---|---|
+| Plugin | `tars:TARS` | The plugin cache, managed by `claude plugin` |
+| File (`install.sh`) | `TARS` | `~/.claude/output-styles/TARS.md` |
+
+Plugin-bundled output styles are namespaced `<plugin>:<style>`. The two installs
+therefore coexist without colliding, and a setting that names one will not
+resolve the other.
+
+### The plugin path works
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
 claude plugin install tars@claude-toolkit
 ```
 
-Tested on 2.1.112, it installs cleanly and then does nothing. The file lands in
-the plugin cache and the style never appears in `/config`. Retested with an
-explicit `outputStyles` manifest field: same result. Claude Code's docs describe
-plugins shipping an `output-styles/` directory, but the minimum version that
-supports it is not documented anywhere I could find.
+Then `/config` → **Output style** → **tars:TARS** → `/clear`.
 
-The manifest is here for the day that lands. Until then, **use `install.sh` or
-the manual copy above.** Both put the file where every version reads it.
+Verified end to end, headless, with a negative control:
 
-If plugin-bundled output styles work on your version, please open an issue
-saying which version. That is the single most useful thing anyone can report.
+```console
+$ claude --plugin-dir ./output-styles \
+         --settings '{"outputStyle":"tars:TARS"}' \
+         -p 'State your active output style and its three numeric values.'
+TARS. Honesty 95, Humor 60, Flattery 0.
+
+$ claude --settings '{"outputStyle":"tars:TARS"}' \
+         -p 'State your active output style and its three numeric values.'
+I don't have an active output style — none is set in this session.
+```
+
+The style applies only when the plugin is loaded, which is what proves the
+plugin supplied it rather than a file left over from an earlier install.
+
+### Earlier versions
+
+On **2.1.112** the plugin install completed and the style never appeared. That
+was true when written and is no longer true. If you are on a version between the
+two and the plugin path does not work, use `install.sh` — the file path has
+worked on every version tested.
+
+### Which to pick
+
+**Plugin**, if you already use the marketplace. It updates with
+`claude plugin update tars@claude-toolkit` and uninstalls cleanly.
+
+**File**, if you want TARS without a marketplace, want to pin a hand-edited
+copy, or want it in one project only:
+
+```bash
+./install.sh --dir /path/to/project/.claude/output-styles
+```
+
+Project-level `.claude/output-styles/` is read the same as the user-level
+directory, so a committed copy gives a whole team the same style.
 
 ---
 

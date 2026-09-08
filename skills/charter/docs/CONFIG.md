@@ -11,6 +11,7 @@ This is deliberate. A Charter-specific config format would be a fifth configurat
 | Area-specific conventions | `.claude/rules/*.md` — native path-scoped rules |
 | How much Charter explains itself | One comment line inside the fence |
 | Defaults for the next repo you set up | `~/.claude/charter.json` |
+| Whether Craft and TARS get offered | `companions` in `/plugin` |
 
 ---
 
@@ -64,6 +65,47 @@ Glob patterns: `**/*.ts`, `src/**/*`, `src/**/*.{ts,tsx}`, `app/api/*.py`.
 
 ---
 
+## Connecting Craft and TARS
+
+`/charter:init` offers to connect them **only when they are already installed**.
+Charter never installs anything, and says nothing at all in a repository where
+neither is present.
+
+| Setting | Behaviour |
+| --- | --- |
+| `ask` *(default)* | Offer whatever is installed and not already wired |
+| `both` | Wire both without asking, still shown in the diff |
+| `tars` / `craft` | Only ever offer that one |
+| `off` | Never ask, never write, never mention it |
+
+Set it in `/plugin`, or in `~/.claude/charter.json` for future repositories.
+
+Two writes, both reversible by hand:
+
+```json
+// .claude/settings.local.json
+{ "outputStyle": "tars:TARS" }
+```
+
+```markdown
+<!-- one line inside the fence -->
+UI/screen work: `/craft` — smallest sufficient change, never a regeneration.
+```
+
+**`outputStyle` always goes in the local file**, even when your boundaries go to
+the committed `.claude/settings.json`. Permission limits are a team decision;
+response style is a personal one, and committing it changes how Claude talks to
+everyone who clones without asking any of them.
+
+One trap worth knowing: TARS installed **as a plugin** is named `tars:TARS`,
+and installed **as a file** it is plain `TARS`. A setting naming a style that
+does not resolve fails silently. Charter reads the name from detection rather
+than constructing it, and `/charter:check` re-verifies it later.
+
+Full detail: [docs/charter/companions.md](../../../docs/charter/companions.md).
+
+---
+
 ## Editing the boundaries
 
 ```bash
@@ -112,7 +154,8 @@ To make it invisible while keeping the enforcement: delete the fence, keep `.cla
 {
   "git": "local-commits",
   "scope": "auto",
-  "guidance": "quiet"
+  "guidance": "quiet",
+  "companions": "ask"
 }
 ```
 
@@ -129,8 +172,9 @@ To make it invisible while keeping the enforcement: delete the fence, keep `.cla
 # 2. remove the boundaries (optional — they work without the plugin)
 #    delete the deny/ask entries from .claude/settings.json
 
-# 3. remove state and rules
+# 3. remove state, rules, and the output style if Charter set one
 rm .claude/charter.json
+#    delete "outputStyle" from .claude/settings.local.json
 rm -r .claude/rules          # only if you want the area rules gone
 
 # 4. remove the plugin
@@ -158,5 +202,7 @@ Permission rules are never rewritten on upgrade. A changed boundary always requi
 **`claude doctor` warns about a rule Charter wrote.** A bug — please report it with the rule text. The generator is meant to produce warning-free output.
 
 **Claude ignores the working agreement.** Check `/context` to confirm CLAUDE.md actually loaded. Then look for a contradiction: two always-loaded files disagreeing makes the model pick one arbitrarily. `/charter:check` looks for exactly this.
+
+**TARS is selected but nothing changed.** Output styles load at session start — run `/clear`. If that does not do it, check the name: a plugin install is `tars:TARS`, a file install is `TARS`, and a setting naming a style that does not exist fails silently. `/charter:check` reports this.
 
 **The session cost looks high.** Run `/charter:check`. It reports the breakdown and names what can move to a path-scoped rule or be cut entirely.

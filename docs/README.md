@@ -3,6 +3,21 @@
 Long-form documentation. Each component's short version lives in its own README;
 this directory holds the parts that are too long to sit there.
 
+## Start here
+
+| Page | What it covers |
+|---|---|
+| [SETUP.md](SETUP.md) | Installing and configuring everything from GitHub, from nothing |
+| [PUBLISHING.md](PUBLISHING.md) | Getting your own fork onto GitHub and installable by other people |
+
+## Toolkit bundle
+
+| Page | What it covers |
+|---|---|
+| [toolkit/bundle.md](toolkit/bundle.md) | What the bundle is, why it exists as a fourth plugin, and when not to use it |
+
+Start at [bundles/toolkit/README.md](../bundles/toolkit/README.md).
+
 ## Craft
 
 | Page | What it covers |
@@ -24,7 +39,13 @@ Start at [output-styles/README.md](../output-styles/README.md).
 
 ## Charter
 
-Charter's documentation ships inside the plugin so it travels with a checkout:
+One page lives here because it spans all three components:
+
+| Page | What it covers |
+|---|---|
+| [charter/companions.md](charter/companions.md) | How Charter connects Craft and TARS, and why the output style is never committed |
+
+The rest ships inside the plugin so it travels with a checkout:
 
 | Page | What it covers |
 |---|---|
@@ -38,4 +59,4 @@ Start at [skills/charter/README.md](../skills/charter/README.md).
 
 - [examples/](../examples/README.md) — worked command sequences
 - [CONTRIBUTING.md](../CONTRIBUTING.md) — the bar for a change
-- [CHANGELOG.md](../CHANGELOG.md) — Craft's release history (Charter and TARS keep their own)
+- [CHANGELOG.md](../CHANGELOG.md) — Craft's release history (the others keep their own)

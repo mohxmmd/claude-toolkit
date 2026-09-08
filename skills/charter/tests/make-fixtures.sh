@@ -50,4 +50,43 @@ mkdir -p "$F/empty-repo"
 cd "$F/empty-repo"
 gitinit
 
+# ------------------------------------------------- companion config fixtures
+# Fake CLAUDE_CONFIG_DIR trees. companions.sh reads these instead of the real
+# ~/.claude, so the suite never depends on what the developer has installed.
+
+# cfg-none: no plugins, no style file anywhere.
+mkdir -p "$F/cfg-none/plugins"
+echo '{"version":1,"plugins":{}}' > "$F/cfg-none/plugins/installed_plugins.json"
+echo '{}' > "$F/cfg-none/settings.json"
+
+# cfg-plugin: both companions installed and enabled. Style is "tars:TARS".
+mkdir -p "$F/cfg-plugin/plugins"
+cat > "$F/cfg-plugin/plugins/installed_plugins.json" <<'JSON'
+{"version":1,"plugins":{"tars@claude-toolkit":{"version":"1.1.0"},"craft@claude-toolkit":{"version":"0.1.0"}}}
+JSON
+echo '{}' > "$F/cfg-plugin/settings.json"
+
+# cfg-file: TARS installed as a FILE, no plugins. Style is bare "TARS".
+# This is the pair that breaks if the name is ever constructed rather than read.
+mkdir -p "$F/cfg-file/plugins" "$F/cfg-file/output-styles"
+echo '{"version":1,"plugins":{}}' > "$F/cfg-file/plugins/installed_plugins.json"
+echo '{}' > "$F/cfg-file/settings.json"
+printf -- '---\nname: TARS\n---\nbe direct\n' > "$F/cfg-file/output-styles/TARS.md"
+
+# cfg-disabled: installed but switched off. Must NOT be offered.
+mkdir -p "$F/cfg-disabled/plugins"
+cat > "$F/cfg-disabled/plugins/installed_plugins.json" <<'JSON'
+{"version":1,"plugins":{"tars@claude-toolkit":{"version":"1.1.0"},"craft@claude-toolkit":{"version":"0.1.0"}}}
+JSON
+cat > "$F/cfg-disabled/settings.json" <<'JSON'
+{"enabledPlugins":{"tars@claude-toolkit":false,"craft@claude-toolkit":false}}
+JSON
+
+# wired: a repo that already has a fence naming /craft and a local outputStyle.
+mkdir -p "$F/wired/.claude"
+cd "$F/wired"
+printf '# Project\n\n<!-- charter:start v1 -->\nUI/screen work: `/craft`\n<!-- charter:end -->\n' > CLAUDE.md
+echo '{"outputStyle":"tars:TARS"}' > .claude/settings.local.json
+gitinit; commit "wired"
+
 echo "fixtures rebuilt in $F"

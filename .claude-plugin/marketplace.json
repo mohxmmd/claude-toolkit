@@ -5,10 +5,30 @@
     "name": "Mohammed"
   },
   "metadata": {
-    "description": "Claude Toolkit: Charter, Craft and TARS for Claude Code. Maintained by Mohammed.",
+    "description": "Claude Toolkit: Charter, Craft and TARS for Claude Code, plus a bundle that installs all three. Maintained by Mohammed.",
     "version": "0.1.0"
   },
   "plugins": [
+    {
+      "name": "toolkit",
+      "source": "./bundles/toolkit",
+      "description": "Installs Charter, Craft and TARS together and wires them up in one pass. The one-command way in.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Mohammed"
+      },
+      "license": "Apache-2.0",
+      "category": "workflow",
+      "keywords": [
+        "bundle",
+        "meta-plugin",
+        "setup",
+        "onboarding",
+        "charter",
+        "craft",
+        "tars"
+      ]
+    },
     {
       "name": "craft",
       "source": "./skills/craft",

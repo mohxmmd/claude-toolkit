@@ -5,6 +5,16 @@ READMEs — nothing here does anything the tools do not already do.
 
 ## Setting up a repository you have just cloned
 
+If you installed the bundle, one command covers everything:
+
+```
+/toolkit:setup
+```
+
+That runs Charter's interview and reports what all three components ended up
+doing. Everything below is what it does under the hood, and what you would type
+if you installed the components separately.
+
 Charter runs once per repository and then gets out of the way.
 
 ```
@@ -110,4 +120,12 @@ Run a plugin straight from a checkout, with no marketplace and no install:
 ```bash
 claude --plugin-dir /path/to/claude-toolkit/skills/craft
 claude --plugin-dir /path/to/claude-toolkit/skills/charter
+claude --plugin-dir /path/to/claude-toolkit/output-styles
 ```
+
+`--plugin-dir` is repeatable, so you can load all three at once.
+
+The `toolkit` bundle is the exception and will not work this way. It declares
+dependencies, there is no marketplace to resolve them against, and Claude Code
+silently disables a plugin whose dependencies are unsatisfied. Load the three
+components directly instead — you only lose `/toolkit:setup`.

@@ -7,6 +7,7 @@ allowed-tools:
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/fingerprint.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/survey.sh *)
+  - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh *)
 ---
 
 # Charter: check
@@ -33,6 +34,16 @@ Structural only. Three checks, all cheap, no rescan and no model reasoning about
 **2. Do the referenced paths still exist?** Every `dead.ref` line from the audit is a path an always-loaded file names that is no longer there.
 
 **3. Did the manifests move?** When `manifest_changed: yes`, scope the investigation with `git diff --name-status <state.head>..HEAD` and re-read only the scripts block. Do not re-survey the whole repo.
+
+**4. Do the recorded companions still resolve?** Skip when `charter.json` has no `companions` key. Otherwise run `${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh .` and compare:
+
+| Recorded | Now | Repair |
+| --- | --- | --- |
+| `companions.style` set | `style.name: none` | The style no longer exists. Propose removing `outputStyle` |
+| `companions.style` set | `style.name` differs | Usually a switch between the plugin and file installs, which expose different names. Propose the corrected value |
+| `companions.craft: true` | `companion.craft: absent` | The agreement points at a command nobody has. Propose removing the line |
+
+The first two are the reason this check exists: an `outputStyle` naming a style Claude Code cannot find fails **silently**, leaving a session with no output style and nothing saying why.
 
 For each finding, propose the smallest repair: a corrected command, a corrected path, a removed line.
 

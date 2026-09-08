@@ -38,6 +38,12 @@
       "title": "How much Charter explains itself",
       "description": "quiet | explain. quiet states an assumption in one line and continues; explain also gives the reasoning and names which rule or threshold fired.",
       "default": "quiet"
+    },
+    "companions": {
+      "type": "string",
+      "title": "Offer to connect Craft and TARS",
+      "description": "ask | both | tars | craft | off. Only ever offers what is already installed; never installs anything. outputStyle is always written to settings.local.json, never the committed file.",
+      "default": "ask"
     }
   }
 }

@@ -8,6 +8,21 @@ of the change: **major** for a change to what TARS fundamentally does, **minor**
 for added or removed behavior, **patch** for wording that does not change
 behavior.
 
+## [Unreleased]
+
+### Changed
+
+- Documentation only; the style itself is unchanged.
+- **The plugin install works.** Verified on 2.1.197 end to end, headless, with a
+  negative control. Selected as `tars:TARS` — plugin-provided output styles are
+  namespaced `<plugin>:<style>`, so the plugin and file installs coexist and
+  neither name resolves the other.
+- The README previously said not to install TARS as a plugin, because on 2.1.112
+  it installed cleanly and never appeared in `/config`. That was true when
+  written and is no longer true.
+- `install.sh` is now documented as the path for people without a marketplace,
+  rather than the only working path.
+
 ## [1.1.0] - 2026-09-03
 
 Compaction release. v1.0 was as verbose as the default style, sometimes more so.
