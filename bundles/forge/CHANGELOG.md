@@ -9,6 +9,36 @@ The bundle's version tracks its own manifest and skill, not the components it
 depends on. A component release does not require a bundle release unless the
 pinned range no longer resolves.
 
+## [Unreleased]
+
+### Added
+
+- **`setup.ps1` and `install.ps1`** — line-for-line PowerShell equivalents of
+  `setup.sh` and `install.sh`, so Windows no longer needs a POSIX shell to
+  install anything. Same options under PowerShell naming (`-NoAutoUpdate`,
+  `-AutoUpdateOnly`, `-Dir`), same settings backup, and no dependency on
+  Python, Node or `jq` — `ConvertFrom-Json` does the work the shell script
+  farmed out.
+
+- **`.gitattributes`, pinning `*.sh` to LF.** Git for Windows defaults to
+  `core.autocrlf=true`, which rewrote every script on checkout and left the
+  shebang reading `#!/usr/bin/env bash\r`. Claude Code's own marketplace clone
+  is a Windows checkout like any other, so the plugins installed cleanly and
+  then failed on first use with `bad interpreter: no such file or directory`.
+
+  Existing Windows installs need one refresh to pick up the fix:
+
+  ```
+  claude plugin marketplace update claude-forge
+  ```
+
+### Changed
+
+- `/forge:setup` now names the PowerShell installer alongside the shell one.
+- [docs/SETUP.md](../../docs/SETUP.md) gained a Windows section covering both
+  installers, the execution-policy workaround, the `bash` the plugins still
+  need at runtime, and three new troubleshooting rows.
+
 ## [0.2.0] — 2026-09-08
 
 ### Changed

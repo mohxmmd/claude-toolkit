@@ -7,6 +7,13 @@ git clone https://github.com/mohxmmd/claude-toolkit.git
 cd claude-toolkit && ./setup.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit; .\setup.ps1
+```
+
 That also enables auto-update, so you receive fixes without repeating it —
 see [docs/AUTO-UPDATE.md](../../docs/AUTO-UPDATE.md). Without the script:
 

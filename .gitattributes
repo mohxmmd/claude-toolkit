@@ -1,0 +1,16 @@
+# Normalise line endings in the repository. Checkout endings are decided by the
+# rules below, not by the machine doing the checkout.
+* text=auto
+
+# Shell scripts must stay LF on every platform.
+#
+# Git for Windows ships with core.autocrlf=true. Without this line, a Windows
+# checkout rewrites every script to CRLF, which leaves the shebang reading
+# "#!/usr/bin/env bash\r" and every run failing with "bad interpreter: no such
+# file or directory". That applies to Claude Code's own marketplace clone, so
+# the plugins would install cleanly and then break on first use.
+*.sh text eol=lf
+
+# PowerShell is fine with either, but CRLF matches the platform it runs on and
+# stops Windows editors from rewriting the file on save.
+*.ps1 text eol=crlf

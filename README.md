@@ -10,6 +10,13 @@ git clone https://github.com/mohxmmd/claude-toolkit.git
 cd claude-toolkit && ./setup.sh
 ```
 
+On Windows PowerShell, the same thing:
+
+```powershell
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit; .\setup.ps1
+```
+
 That installs all three and turns on **auto-update**, so you get fixes without
 doing this again. These are early-stage tools that change often, and a user
 stuck on the version they first installed is a user hitting bugs that are
@@ -127,7 +134,12 @@ Full guide: **[docs/SETUP.md](docs/SETUP.md)**. The short version:
 
 ```bash
 git clone https://github.com/mohxmmd/claude-toolkit.git
-cd claude-toolkit && ./setup.sh
+cd claude-toolkit && ./setup.sh          # macOS, Linux, WSL, Git Bash
+```
+
+```powershell
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit; .\setup.ps1          # Windows PowerShell
 ```
 
 Restart Claude Code, then `/charter:init` in the repository you want set up.
@@ -135,7 +147,8 @@ Restart Claude Code, then `/charter:init` in the repository you want set up.
 `/forge:doctor` tells you what has gone stale, duplicated or contradictory
 across every AI context surface in the repo, once you have more than one.
 
-Already installed and just want auto-update on? `./setup.sh --auto-update-only`.
+Already installed and just want auto-update on? `./setup.sh --auto-update-only`,
+or `.\setup.ps1 -AutoUpdateOnly` on Windows.
 
 ### Everything, without auto-update
 
@@ -173,6 +186,11 @@ components directly instead.
 ```bash
 ./install.sh                                             # ~/.claude/output-styles/
 ./install.sh --dir /path/to/project/.claude/output-styles  # one project only
+```
+
+```powershell
+.\install.ps1                                            # ~\.claude\output-styles\
+.\install.ps1 -Dir C:\path\to\project\.claude\output-styles  # one project only
 ```
 
 Selected as **`TARS`** rather than `tars:TARS`. A committed project-level copy
@@ -231,8 +249,9 @@ Worked sequences are in [examples/](examples/README.md).
 | `skills/charter/` | The Charter plugin: skills, references, scripts, templates, tests |
 | `output-styles/` | The TARS output style, its manifest, changelog and contributing guide |
 | `bundles/forge/` | The bundle plugin: a manifest of dependencies, `/forge:setup` and `/forge:doctor` |
-| `setup.sh` | The Forge installer. Installs all three and enables auto-update |
-| `install.sh` | The TARS file installer. Copies `output-styles/TARS.md` into `~/.claude/` |
+| `setup.sh` / `setup.ps1` | The Forge installer. Installs all three and enables auto-update |
+| `install.sh` / `install.ps1` | The TARS file installer. Copies `output-styles/TARS.md` into `~/.claude/` |
+| `.gitattributes` | Forces LF on `*.sh`, so a Windows checkout does not break every script |
 | `docs/` | Long-form documentation, plus the setup and publishing guides |
 | `examples/` | Worked command sequences |
 | `.claude-plugin/marketplace.json` | The marketplace manifest listing all four |
@@ -246,8 +265,13 @@ code.
 Claude Code 2.x for the file installs; **2.1.197 or newer** for the plugin
 install of TARS, which is where plugin-provided output styles were verified
 working. Craft's scripts need Node 20 or newer; Charter's need a POSIX shell and
-git, and use `jq` when it is present without requiring it. Everything works on
-macOS, Linux and WSL.
+git, and use `jq` when it is present without requiring it.
+
+**Windows.** The installers ship in both flavours, so setup works from
+PowerShell with nothing extra. The plugins themselves shell out at runtime, so
+they need the `bash` that Claude Code on Windows already relies on — Git for
+Windows. WSL works too. Details and troubleshooting:
+[docs/SETUP.md](docs/SETUP.md#windows).
 
 ## Contributing
 

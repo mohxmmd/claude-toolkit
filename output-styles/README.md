@@ -110,6 +110,12 @@ cd claude-toolkit
 ./install.sh
 ```
 
+```powershell
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit
+.\install.ps1
+```
+
 Or copy the one file directly:
 
 ```bash
@@ -303,6 +309,10 @@ copy, or want it in one project only:
 
 ```bash
 ./install.sh --dir /path/to/project/.claude/output-styles
+```
+
+```powershell
+.\install.ps1 -Dir C:\path\to\project\.claude\output-styles
 ```
 
 Project-level `.claude/output-styles/` is read the same as the user-level

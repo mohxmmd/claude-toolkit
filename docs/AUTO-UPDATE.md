@@ -9,6 +9,12 @@ costs you, and how to turn it off.
 ./setup.sh --no-auto-update   # install, leave it off
 ```
 
+```powershell
+.\setup.ps1                   # install everything, auto-update on
+.\setup.ps1 -AutoUpdateOnly   # already installed, just turn it on
+.\setup.ps1 -NoAutoUpdate     # install, leave it off
+```
+
 ---
 
 ## Why this is opt-in per machine, and cannot be shipped
@@ -27,7 +33,8 @@ ship arbitrary new code to every user forever, with no review after the first
 install. The install is the consent boundary; auto-update is a user handing that
 boundary over, so it has to live in the user's own settings file.
 
-`setup.sh` exists because the install command is the one honest moment to ask.
+`setup.sh` — and `setup.ps1`, which does the same thing on Windows — exists
+because the install command is the one honest moment to ask.
 
 ---
 

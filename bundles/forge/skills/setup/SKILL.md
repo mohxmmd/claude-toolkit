@@ -68,7 +68,7 @@ Exactly one line, the first row that applies:
 | `charter.boundaries: no` | `/charter:init` — this repo has no enforced boundaries |
 | `craft.config: no` | `/craft:atlas` — reads the product, writes `.craft/config.md` |
 | `tars.style: none` | `/config` → Output style → `tars:TARS` → then `/clear` |
-| `autoupdate.marketplace: no` | `./setup.sh --auto-update-only` from a checkout — these tools change often |
+| `autoupdate.marketplace: no` | `./setup.sh --auto-update-only` from a checkout, or `.\setup.ps1 -AutoUpdateOnly` on Windows — these tools change often |
 | Everything set | `nothing — you're set. /forge:doctor to check the surfaces you already have` |
 
 Charter comes before Craft. Charter's own setup offers to wire TARS and add the

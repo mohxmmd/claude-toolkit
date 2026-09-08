@@ -22,7 +22,7 @@ Three things carry a name that is probably not yours. Change them everywhere:
 
 | What | Where |
 |---|---|
-| `mohxmmd` | Every URL in every README, `install.sh`, and both docs directories |
+| `mohxmmd` | Every URL in every README, `install.sh`, `install.ps1`, `setup.sh`, `setup.ps1`, and both docs directories |
 | `Mohammed` | The `owner` and `author` fields in all five manifests |
 | `claude-toolkit` | The repository name, in every clone URL, if you rename it |
 | `claude-forge` | The marketplace name, in `marketplace.json` and every `install X@claude-forge` |
@@ -80,7 +80,10 @@ done
 # scripts parse
 for f in skills/charter/scripts/*.sh skills/charter/tests/*.sh; do bash -n "$f"; done
 for f in skills/craft/scripts/*.mjs skills/craft/scripts/lib/*.mjs; do node --check "$f"; done
-sh -n install.sh
+sh -n install.sh && sh -n setup.sh
+# PowerShell twins, if pwsh is available:
+pwsh -NoProfile -Command "$null = [ScriptBlock]::Create((Get-Content -Raw ./setup.ps1))"
+pwsh -NoProfile -Command "$null = [ScriptBlock]::Create((Get-Content -Raw ./install.ps1))"
 
 # behaviour and budget
 ./skills/charter/tests/make-fixtures.sh && ./skills/charter/tests/run.sh

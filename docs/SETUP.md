@@ -24,7 +24,50 @@ git --version
 node --version
 ```
 
-macOS, Linux and WSL are all supported. Nothing here is platform-specific.
+macOS, Linux, WSL and native Windows are all supported. See
+[Windows](#windows) for the one thing that differs.
+
+---
+
+## Windows
+
+Everything works, with one split: **the installers come in two flavours, the
+plugins do not.**
+
+| | Use |
+|---|---|
+| macOS, Linux, WSL, Git Bash | `./setup.sh`, `./install.sh` |
+| Windows PowerShell | `.\setup.ps1`, `.\install.ps1` |
+
+The `.ps1` scripts are line-for-line equivalents. They take the same options
+under PowerShell naming (`-NoAutoUpdate`, `-AutoUpdateOnly`, `-Dir`), back your
+settings file up the same way, and need no Python, Node or `jq`.
+
+If PowerShell refuses to run the script at all, it is the execution policy, not
+the script:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\setup.ps1
+```
+
+**The plugins still need `bash`.** Charter and the Forge bundle shell out to
+`scripts/*.sh` at runtime. That is the same `bash` Claude Code on Windows
+already requires, so if Claude Code runs, they run. If you installed Claude Code
+without [Git for Windows](https://git-scm.com/download/win), install it.
+
+You never need `bash` to *install* — only to use Charter's and Forge's commands.
+Craft and TARS have no shell scripts on the runtime path.
+
+**Line endings.** The repository pins `*.sh` to LF in
+[`.gitattributes`](../.gitattributes). Without it, Git for Windows'
+`core.autocrlf=true` rewrites every script on checkout and the shebang becomes
+`#!/usr/bin/env bash\r`, which fails as `bad interpreter: no such file or
+directory`. If you cloned or installed before this was pinned, refresh the copy
+Claude Code holds:
+
+```powershell
+claude plugin marketplace update claude-forge
+```
 
 ---
 
@@ -35,13 +78,21 @@ git clone https://github.com/mohxmmd/claude-toolkit.git
 cd claude-toolkit && ./setup.sh
 ```
 
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit; .\setup.ps1
+```
+
 That installs **four** things — the `forge` bundle plus Charter, Craft and
 TARS, which the bundle declares as dependencies — and turns on **auto-update**
 so you receive fixes without repeating this.
 
 These tools are early and change often, so being stuck on the version you first
 installed means hitting bugs that are already fixed. The script backs up your
-settings first, says exactly what it wrote, and `--no-auto-update` opts out.
+settings first, says exactly what it wrote, and `--no-auto-update`
+(`-NoAutoUpdate` in PowerShell) opts out.
 Details and the trade-off: [AUTO-UPDATE.md](AUTO-UPDATE.md).
 
 Without the script, and without auto-update:
@@ -137,12 +188,23 @@ TARS is one markdown file and needs no plugin machinery:
 ./install.sh
 ```
 
+```powershell
+.\install.ps1
+```
+
 Or without cloning anything:
 
 ```bash
 mkdir -p ~/.claude/output-styles
 curl -fsSL https://raw.githubusercontent.com/mohxmmd/claude-toolkit/main/output-styles/TARS.md \
   -o ~/.claude/output-styles/TARS.md
+```
+
+```powershell
+New-Item -ItemType Directory -Force ~\.claude\output-styles | Out-Null
+Invoke-WebRequest -UseBasicParsing `
+  https://raw.githubusercontent.com/mohxmmd/claude-toolkit/main/output-styles/TARS.md `
+  -OutFile ~\.claude\output-styles\TARS.md
 ```
 
 Then `/config` → Output style → **TARS** → `/clear`.
@@ -155,6 +217,10 @@ the other. Both can be installed at once without colliding.
 
 ```bash
 ./install.sh --dir /path/to/project/.claude/output-styles
+```
+
+```powershell
+.\install.ps1 -Dir C:\path\to\project\.claude\output-styles
 ```
 
 Project-level `.claude/output-styles/` is read exactly like the user-level
@@ -245,13 +311,17 @@ it costs per session, and the one next thing worth doing.
 | Bundle installed, `/forge:setup` missing | A dependency is disabled, so the bundle is too | `claude plugin list`, enable the missing one |
 | `/forge:setup` will not run Charter for you | By design — `/charter:init` is user-invocation only | Type `/charter:init` yourself |
 | Charter says a command is missing that exists | It only records commands that exit zero when probed | Run the probe yourself; if it fails, Charter is right |
+| `bad interpreter: no such file or directory` on Windows | A pre-`.gitattributes` checkout rewrote the scripts to CRLF | `claude plugin marketplace update claude-forge`, then restart |
+| `forge not found in marketplace claude-forge` | A cached marketplace clone from before the `claude-toolkit` → `claude-forge` rename | `claude plugin marketplace remove claude-toolkit`, then add and install again |
+| PowerShell will not run `setup.ps1` | Execution policy, not the script | `powershell -ExecutionPolicy Bypass -File .\setup.ps1` |
 
 ---
 
 ## Updating
 
-If you installed with `./setup.sh`, this happens on its own at session start.
-Turn it on for an existing install with `./setup.sh --auto-update-only`.
+If you installed with `./setup.sh` or `.\setup.ps1`, this happens on its own at
+session start. Turn it on for an existing install with
+`./setup.sh --auto-update-only`, or `.\setup.ps1 -AutoUpdateOnly`.
 
 By hand:
 
