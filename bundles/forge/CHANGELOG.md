@@ -9,6 +9,47 @@ The bundle's version tracks its own manifest and skill, not the components it
 depends on. A component release does not require a bundle release unless the
 pinned range no longer resolves.
 
+## [0.2.0] — 2026-09-08
+
+### Changed
+
+- **The bundle is now `forge`, and the marketplace is `claude-forge`.** It was
+  `toolkit` inside a marketplace called `claude-toolkit`: one word doing two
+  jobs at two scopes, which is why nobody could tell which was which. The
+  command prefix is `/forge:`, and the install is `forge@claude-forge`.
+
+  **Breaking.** Re-add the marketplace and reinstall:
+
+  ```
+  claude plugin marketplace remove claude-toolkit
+  claude plugin marketplace add mohxmmd/claude-toolkit
+  claude plugin install forge@claude-forge
+  ```
+
+  The GitHub repository is unchanged, so clone URLs still work.
+
+### Added
+
+- **`/forge:doctor`** — the check no component could make alone. Every tool here
+  is good at writing things down and none of them reads what the others wrote,
+  so a repository ends up with `CLAUDE.md`, auto-memory, `.claude/rules/`,
+  `.ai/rules/`, `.project-context/` and `.craft/` all loaded, none reconciled,
+  and nothing saying which wins when two disagree.
+
+  It reports: combined always-loaded token estimate across every surface;
+  references and commands named in a doc that no longer exist; the same
+  assertion written into two surfaces; policies stated in more than one place;
+  and **prose claiming an enforcement it does not have**, checked against the
+  permission rules that actually exist.
+
+  That last check found the bug that prompted it: `.craft/config.md` said CRAFT
+  would "refuse to touch" a path, and nothing stopped an edit to it.
+
+  It reports and never repairs. Adding a seventh surface to reconcile the other
+  six would be the same mistake with better intentions.
+- `scripts/doctor.sh` — read-only, under 120 lines of output, writes nothing.
+- `bundles/forge/tests/run.sh` — 25 assertions, run in CI.
+
 ## [0.1.2] — 2026-09-08
 
 ### Added

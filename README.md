@@ -1,4 +1,4 @@
-# Claude Toolkit
+# Claude Forge
 
 **Three tools for Claude Code, maintained by Mohammed.**
 
@@ -19,21 +19,21 @@ Prefer to do it by hand? Two commands, no auto-update:
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
-claude plugin install toolkit@claude-toolkit
+claude plugin install forge@claude-forge
 ```
 
 | | What it fixes | Install just this |
 |---|---|---|
-| **[Craft](skills/craft/README.md)** | Ask any AI to improve a screen and it regenerates it. Craft changes the smallest thing that fixes the problem and tells you what it left alone. | `claude plugin install craft@claude-toolkit` |
-| **[Charter](skills/charter/README.md)** | A rule written in prose is a suggestion. Charter turns a two-minute interview into a working agreement *and* enforced permission boundaries. | `claude plugin install charter@claude-toolkit` |
-| **[TARS](output-styles/README.md)** | Claude agreeing with you is pleasant and occasionally expensive. TARS answers first, in a line or two, and tells you when you are wrong. | `claude plugin install tars@claude-toolkit` |
+| **[Craft](skills/craft/README.md)** | Ask any AI to improve a screen and it regenerates it. Craft changes the smallest thing that fixes the problem and tells you what it left alone. | `claude plugin install craft@claude-forge` |
+| **[Charter](skills/charter/README.md)** | A rule written in prose is a suggestion. Charter turns a two-minute interview into a working agreement *and* enforced permission boundaries. | `claude plugin install charter@claude-forge` |
+| **[TARS](output-styles/README.md)** | Claude agreeing with you is pleasant and occasionally expensive. TARS answers first, in a line or two, and tells you when you are wrong. | `claude plugin install tars@claude-forge` |
 
 Craft and Charter are **skills** — you invoke them by name. TARS is an **output
 style** — it changes every response until you switch it off. That difference is
 the only thing you need to know to pick what you want.
 
-**[Toolkit](bundles/toolkit/README.md)** is a fourth plugin that installs all
-three in one command, plus `/toolkit:setup` to tell you what is configured in a
+**[Forge](bundles/forge/README.md)** is a fourth plugin that installs all
+three in one command, plus `/forge:setup` and `/forge:doctor` to tell you what is configured in a
 repository and what to type next. It contains nothing else.
 
 New here? **[docs/SETUP.md](docs/SETUP.md)** is the install-and-configure guide.
@@ -101,7 +101,7 @@ carrying out the task, and it separates what it *verified* from what it merely
 *wrote*.
 
 ```bash
-claude plugin install tars@claude-toolkit
+claude plugin install tars@claude-forge
 # then /config -> Output style -> tars:TARS -> /clear
 ```
 
@@ -131,7 +131,9 @@ cd claude-toolkit && ./setup.sh
 ```
 
 Restart Claude Code, then `/charter:init` in the repository you want set up.
-`/toolkit:setup` tells you where you are if you lose the thread.
+`/forge:setup` tells you where you are if you lose the thread.
+`/forge:doctor` tells you what has gone stale, duplicated or contradictory
+across every AI context surface in the repo, once you have more than one.
 
 Already installed and just want auto-update on? `./setup.sh --auto-update-only`.
 
@@ -139,14 +141,14 @@ Already installed and just want auto-update on? `./setup.sh --auto-update-only`.
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
-claude plugin install toolkit@claude-toolkit
+claude plugin install forge@claude-forge
 ```
 
 ### One thing
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
-claude plugin install charter@claude-toolkit    # or craft, or tars
+claude plugin install charter@claude-forge    # or craft, or tars
 ```
 
 Restart. Plugins load at session start, so nothing you just installed exists in
@@ -162,7 +164,7 @@ claude --plugin-dir /path/to/claude-toolkit/skills/craft
 claude --plugin-dir /path/to/claude-toolkit/skills/charter
 ```
 
-The `toolkit` bundle is the one exception: it declares dependencies, and Claude
+The `forge` bundle is the one exception: it declares dependencies, and Claude
 Code silently disables a plugin whose dependencies cannot resolve. Load the three
 components directly instead.
 
@@ -214,7 +216,7 @@ Three things it will not do:
 - **Require either of them.** Charter declares no dependency on Craft or TARS, so
   a vendored copy of `skills/charter/` keeps working on its own. That
   independence is why the "install all three" coupling lives in a separate
-  [bundle plugin](bundles/toolkit/README.md).
+  [bundle plugin](bundles/forge/README.md).
 
 Turn it off entirely with Charter's `companions: off`. Details and the reasoning:
 [docs/charter/companions.md](docs/charter/companions.md).
@@ -228,8 +230,8 @@ Worked sequences are in [examples/](examples/README.md).
 | `skills/craft/` | The Craft plugin: skills, router, references, scripts, evals |
 | `skills/charter/` | The Charter plugin: skills, references, scripts, templates, tests |
 | `output-styles/` | The TARS output style, its manifest, changelog and contributing guide |
-| `bundles/toolkit/` | The bundle plugin: a manifest of dependencies and `/toolkit:setup` |
-| `setup.sh` | The toolkit installer. Installs all three and enables auto-update |
+| `bundles/forge/` | The bundle plugin: a manifest of dependencies, `/forge:setup` and `/forge:doctor` |
+| `setup.sh` | The Forge installer. Installs all three and enables auto-update |
 | `install.sh` | The TARS file installer. Copies `output-styles/TARS.md` into `~/.claude/` |
 | `docs/` | Long-form documentation, plus the setup and publishing guides |
 | `examples/` | Worked command sequences |

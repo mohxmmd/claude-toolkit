@@ -40,7 +40,7 @@ first:
 {
   "env": { "FORCE_AUTOUPDATE_PLUGINS": "1" },
   "extraKnownMarketplaces": {
-    "claude-toolkit": {
+    "claude-forge": {
       "source": { "source": "github", "repo": "mohxmmd/claude-toolkit" },
       "autoUpdate": true
     }
@@ -81,7 +81,7 @@ Existing keys are preserved. If you added the marketplace from a fork, your
 the entire point, and it is a real trade-off worth naming rather than burying.
 
 For these tools specifically the trade leans toward updating: they are early,
-they change often, and the failure they prevent is concrete. `/toolkit:setup`
+they change often, and the failure they prevent is concrete. `/forge:setup`
 shipped broken in 0.1.0 and was fixed in 0.1.1. A user without auto-update runs
 the broken one until they think to check.
 
@@ -113,8 +113,8 @@ on machines where the global auto-updater is off.
 Then update by hand whenever you like:
 
 ```bash
-claude plugin marketplace update claude-toolkit
-claude plugin update toolkit@claude-toolkit
+claude plugin marketplace update claude-forge
+claude plugin update forge@claude-forge
 ```
 
 ---

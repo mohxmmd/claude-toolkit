@@ -8,6 +8,21 @@ of the change: **major** for a change to what TARS fundamentally does, **minor**
 for added or removed behavior, **patch** for wording that does not change
 behavior.
 
+## [1.2.0] — 2026-09-08
+
+### Changed
+
+- **The style rules are scoped to prose TARS authors.** They do not govern text
+  a tool, skill, template or user dictates verbatim. The "no em dashes" rule
+  collided with generated artifacts: a companion skill prescribes a literal line
+  containing one, and rewriting a dictated line to satisfy a punctuation rule
+  corrupts it. A corrupted command is a worse outcome than an em dash.
+- The header dials say what they are. `Honesty 95. Humor 60.` is a name, not a
+  setting: nothing reads those numbers and the sections below are the whole
+  contract. The documentation already said so in three places; the style file
+  now says it too, where someone reading only the style file will see it.
+- TARS installs as `tars@claude-forge`.
+
 ## [2.0.0] - 2026-09-08
 
 Redesign. v1.1 was a list of prohibitions with one fixed reply shape. 2.0 is an

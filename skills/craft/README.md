@@ -58,7 +58,7 @@ No setup. No questionnaire. No new design system.
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
-claude plugin install craft@claude-toolkit
+claude plugin install craft@claude-forge
 ```
 
 Then open a project with a UI in it and ask for something.
@@ -97,9 +97,13 @@ navigation identity and product terminology do not move unless you ask. If a fix
 genuinely needs more budget than it has, CRAFT stops and says which axis and why,
 rather than quietly exceeding it or quietly giving up.
 
-**Can I preserve specific things?** Yes, and it is a hard gate rather than a
-preference. Anything under `## Do not change` in `config.md` will not be touched,
-and CRAFT will say so rather than working around it.
+**Can I preserve specific things?** Yes. Anything under `## Do not change` in
+`config.md` is not touched, and CRAFT says so rather than working around it.
+
+It is still a convention, not an enforced boundary: CRAFT reads that file, and
+nothing prevents an edit to those paths. Atlas prints the matching `Edit()` deny
+rule so you can install it with Charter, which writes rules Claude Code evaluates
+before the model is consulted. Until you do, it binds CRAFT and nothing else.
 
 **Can I define my own taste?** Optionally. The default is to preserve the visual
 language your product already has. If you want direction, describe it in a
@@ -188,7 +192,7 @@ Updating CRAFT replaces the skill and touches neither directory.
 
 ```bash
 node scripts/context.mjs --target <path>   # boot: compiled context and directives
-node scripts/measure.mjs [--json]          # design tokens, dials, confidence
+node scripts/measure.mjs [--json]          # tokens, components, dials, confidence
 node scripts/inspect.mjs <file>            # one surface and its local conventions
 node scripts/budget.mjs                    # token and spec gate (CI)
 node scripts/version.mjs --check           # release consistency (CI)
@@ -200,7 +204,10 @@ All are zero-dependency Node 20 ESM and safe to run against any repository.
 
 ## Status
 
-**0.1.0.** The core loop works and is measured. Browser-driven verification, the
+**0.2.0.** The core loop works and is measured. 0.2.0 fixed three measurement
+faults that reported inferences as facts: `css` read from the manifest rather
+than the code, a `dark_mode` signal that substring-matched the word, and token
+counts inflated several-fold by build output. Browser-driven verification, the
 deterministic detector, surface memory and reference grounding are specified and
 scheduled; see the [changelog](../../CHANGELOG.md) for what is and is not in this
 release, including its known limitations.

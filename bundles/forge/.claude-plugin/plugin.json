@@ -1,11 +1,11 @@
 {
-  "name": "toolkit",
-  "version": "0.1.2",
+  "name": "forge",
+  "version": "0.2.0",
   "description": "Installs Charter, Craft and TARS together and wires them up in one pass. Ships no behaviour of its own beyond a single setup command.",
   "author": {
     "name": "Mohammed"
   },
-  "homepage": "https://github.com/mohxmmd/claude-toolkit/tree/main/bundles/toolkit",
+  "homepage": "https://github.com/mohxmmd/claude-toolkit/tree/main/bundles/forge",
   "repository": "https://github.com/mohxmmd/claude-toolkit",
   "license": "Apache-2.0",
   "keywords": [
@@ -20,18 +20,18 @@
   "dependencies": [
     {
       "name": "charter",
-      "marketplace": "claude-toolkit",
-      "version": "^0.1.0"
+      "marketplace": "claude-forge",
+      "version": "^0.2.0"
     },
     {
       "name": "craft",
-      "marketplace": "claude-toolkit",
-      "version": "^0.1.0"
+      "marketplace": "claude-forge",
+      "version": "^0.2.0"
     },
     {
       "name": "tars",
-      "marketplace": "claude-toolkit",
-      "version": "^1.1.0"
+      "marketplace": "claude-forge",
+      "version": "^1.2.0"
     }
   ]
 }

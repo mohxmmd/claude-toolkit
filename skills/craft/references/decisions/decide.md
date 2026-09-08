@@ -97,4 +97,6 @@ forbidden  what you may not touch, from config and from the request
 
 `preserve` must not be empty. If nothing is worth preserving, you are writing a
 new product, and that needs saying out loud rather than doing quietly.
-`forbidden` is a hard gate: a violation is a failed task, not a trade-off.
+`forbidden` is absolute: a violation is a failed task, not a trade-off. It binds
+CRAFT, not the client. A path that must be un-editable by anything needs an
+`Edit()` deny rule in settings, which atlas step 5b emits.

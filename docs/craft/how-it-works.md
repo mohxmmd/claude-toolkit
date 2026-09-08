@@ -96,8 +96,9 @@ forbidden  what may not be touched, from config and from your request
 ```
 
 `preserve` is never empty. If nothing on a surface is worth keeping, that is a
-new product, and it gets said out loud rather than done quietly. `forbidden` is a
-hard gate: violating it is a failed task, not a trade-off.
+new product, and it gets said out loud rather than done quietly. `forbidden` is
+absolute: violating it is a failed task, not a trade-off. It binds CRAFT, not the
+client; the enforced form is an `Edit()` deny rule, which atlas prints for you.
 
 ## The change budget
 

@@ -17,12 +17,62 @@ Two version numbers matter:
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-09-08
+
+`craft_schema` is unchanged at 1. No migration is needed; `.craft/config.md` is
+read the same way. What changed is what the measurement pass reports, and three
+of those numbers were previously wrong in ways that looked authoritative.
+
+### Fixed
+
+- **`css` was read from the manifest, not from the code.** A `tailwindcss`
+  dependency reported `css: "tailwind"` for a Bootstrap product where Tailwind
+  was nine lines across two of ninety-eight views. Detection is now
+  usage-weighted, and the schema gained `stack.css_systems` and
+  `stack.css_split` so "two systems, split by area" is expressible. A dependency
+  that is installed and unused is reported as
+  `source: "manifest only, no usage observed"`.
+- **`dark_mode` substring-matched the word `dark`.** `--hlp-navy-dark: #1a2b4c`
+  contains the literal `dark:`, so a codebase with zero `prefers-color-scheme`
+  rules reported 1773. Every entry in `signals` is now
+  `{value, files, matched[]}` and matches named mechanisms only. An empty
+  `matched` makes a zero legible rather than merely absent.
+- **Every token count was inflated several-fold by build output.** A
+  content-hashed `bundle-core.88f4182ca0.css` was weighted the same as a
+  hand-written stylesheet. Generated files are now excluded by content-hashed
+  filename, `.min.`, and the repo's own `.gitignore` via `git check-ignore`.
+- **Committed vendored copies had no filename signal.** A stylesheet holding
+  more than 70% of another's declarations is now detected as derived and
+  dropped, which catches the `theme/api/css/stylesheet.css` case.
+- **Counts were occurrences, so one large file dominated.** Every value now
+  carries `files` and `file_share` alongside `evidence`, and ranking and
+  confidence are computed on files. `#77a507` at 750 hits in one file no longer
+  outranks a value used once in forty.
+- **The dials were computed from the polluted corpus and written as facts.**
+  They are now computed after every exclusion and carry `confidence` and
+  `write_to_config`. Atlas writes them commented out when confidence is low.
+
+### Added
+
+- **`components`**, the inventory that was previously `null`. Ranked by file
+  count across SCSS mixins and placeholders, Blade components and partials,
+  Livewire, and JSX/Vue elements. Capitalised HTML and SVG tags are excluded.
+- `excluded` in the measurement output: what was dropped as vendored, generated,
+  gitignored or derived, with example paths. Atlas reports these.
+- [`references/measure.md`](skills/craft/references/measure.md) — what each
+  measured field means and which may be believed.
+- `skills/craft/tests/run.sh` — 18 assertions, one per failure above, run in CI.
+
 ### Changed
 
-- The repository is now **claude-toolkit**. CRAFT lives at `skills/craft/`, so
-  the marketplace is added as `mohxmmd/claude-toolkit` and the plugin installs as
-  `craft@claude-toolkit`. Nothing inside the plugin moved, so `.craft/` and
-  `craft_schema` are unaffected and no migration is needed.
+- **`## Do not change` is no longer described as a hard gate.** It was called
+  one in five places while nothing enforced it, which is the tier-3-as-tier-1
+  violation Charter's own policy forbids. It is a convention CRAFT honours.
+  Atlas step 5b now prints the `Edit()` deny rule that makes it enforced and
+  offers to hand it to Charter.
+- The repository is now **claude-toolkit** and the marketplace is
+  **claude-forge**. CRAFT installs as `craft@claude-forge`. Nothing inside the
+  plugin moved, so `.craft/` and `craft_schema` are unaffected.
 
 ### Fixed
 

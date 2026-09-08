@@ -62,7 +62,7 @@ echo '{}' > "$F/cfg-none/settings.json"
 # cfg-plugin: both companions installed and enabled. Style is "tars:TARS".
 mkdir -p "$F/cfg-plugin/plugins"
 cat > "$F/cfg-plugin/plugins/installed_plugins.json" <<'JSON'
-{"version":1,"plugins":{"tars@claude-toolkit":{"version":"1.1.0"},"craft@claude-toolkit":{"version":"0.1.0"}}}
+{"version":1,"plugins":{"tars@claude-forge":{"version":"1.1.0"},"craft@claude-forge":{"version":"0.1.0"}}}
 JSON
 echo '{}' > "$F/cfg-plugin/settings.json"
 
@@ -76,10 +76,10 @@ printf -- '---\nname: TARS\n---\nbe direct\n' > "$F/cfg-file/output-styles/TARS.
 # cfg-disabled: installed but switched off. Must NOT be offered.
 mkdir -p "$F/cfg-disabled/plugins"
 cat > "$F/cfg-disabled/plugins/installed_plugins.json" <<'JSON'
-{"version":1,"plugins":{"tars@claude-toolkit":{"version":"1.1.0"},"craft@claude-toolkit":{"version":"0.1.0"}}}
+{"version":1,"plugins":{"tars@claude-forge":{"version":"1.1.0"},"craft@claude-forge":{"version":"0.1.0"}}}
 JSON
 cat > "$F/cfg-disabled/settings.json" <<'JSON'
-{"enabledPlugins":{"tars@claude-toolkit":false,"craft@claude-toolkit":false}}
+{"enabledPlugins":{"tars@claude-forge":false,"craft@claude-forge":false}}
 JSON
 
 # wired: a repo that already has a fence naming /craft and a local outputStyle.

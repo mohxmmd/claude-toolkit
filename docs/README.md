@@ -11,13 +11,13 @@ this directory holds the parts that are too long to sit there.
 | [AUTO-UPDATE.md](AUTO-UPDATE.md) | Receiving new versions automatically, what it costs, and why a plugin cannot enable it itself |
 | [PUBLISHING.md](PUBLISHING.md) | Getting your own fork onto GitHub and installable by other people |
 
-## Toolkit bundle
+## Forge bundle
 
 | Page | What it covers |
 |---|---|
-| [toolkit/bundle.md](toolkit/bundle.md) | What the bundle is, why it exists as a fourth plugin, and when not to use it |
+| [forge/bundle.md](forge/bundle.md) | What the bundle is, why it exists as a fourth plugin, what `/forge:setup` and `/forge:doctor` do, and when not to use it |
 
-Start at [bundles/toolkit/README.md](../bundles/toolkit/README.md).
+Start at [bundles/forge/README.md](../bundles/forge/README.md).
 
 ## Craft
 

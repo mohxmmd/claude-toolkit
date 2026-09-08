@@ -1,6 +1,6 @@
 {
   "name": "charter",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A charter grants powers and limits them in the same document. Turns a two-minute interview into a project's working agreement and its enforced permission boundaries, then stays out of the way at about 600 tokens a session.",
   "author": {
     "name": "Mohammed"

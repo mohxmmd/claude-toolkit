@@ -60,14 +60,18 @@ script, it should be.
 
 ## Adding a permission-rule case
 
-The eleven gotchas in [`references/policy.md`](references/policy.md) each exist
-because a plausible-looking rule silently fails. To add a twelfth:
+The seventeen gotchas in [`references/policy.md`](references/policy.md) each
+exist because a plausible-looking rule silently fails. To add an eighteenth:
 
 1. Name the behaviour, with the documentation or the observed transcript that
    shows it.
 2. Add the gotcha to `references/policy.md` with the wrong form and the right one.
-3. Add the corresponding line to the self-check list at the end of that file.
-4. Add an assertion to `tests/run.sh` if it can be checked without a model.
+3. Add a check to [`scripts/lint-rules.sh`](scripts/lint-rules.sh). The self-check
+   is a script, not a list read by eye, and a non-zero exit stops the write.
+4. Add two assertions to `tests/run.sh`: one that the bad form is caught, and
+   **one that a legitimate similar form is not**. Every check here has a
+   near-miss that must pass — `Bash(php artisan migrate*)` is correct and
+   `Bash(ls*)` is not, and the first version of the gotcha-3 check failed that.
 5. If it needs a model to check, add a fixture that exercises it and record the
    dry-run output in the PR.
 

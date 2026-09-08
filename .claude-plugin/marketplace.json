@@ -1,19 +1,19 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "claude-toolkit",
+  "name": "claude-forge",
   "owner": {
     "name": "Mohammed"
   },
   "metadata": {
-    "description": "Claude Toolkit: Charter, Craft and TARS for Claude Code, plus a bundle that installs all three. Maintained by Mohammed.",
-    "version": "0.1.0"
+    "description": "Claude Forge: Charter, Craft and TARS for Claude Code, plus a bundle that installs all three. Maintained by Mohammed.",
+    "version": "0.2.0"
   },
   "plugins": [
     {
-      "name": "toolkit",
-      "source": "./bundles/toolkit",
+      "name": "forge",
+      "source": "./bundles/forge",
       "description": "Installs Charter, Craft and TARS together and wires them up in one pass. The one-command way in.",
-      "version": "0.1.2",
+      "version": "0.2.0",
       "author": {
         "name": "Mohammed"
       },
@@ -33,7 +33,7 @@
       "name": "craft",
       "source": "./skills/craft",
       "description": "Improve existing SaaS interfaces without losing the product's identity. Preserve-first UI/UX evolution for Claude Code.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Mohammed"
       },
@@ -52,7 +52,7 @@
       "name": "charter",
       "source": "./skills/charter",
       "description": "A charter grants powers and limits them in the same document. Turns a two-minute interview into a project's working agreement and its enforced permission boundaries, then stays out of the way.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Mohammed"
       },
@@ -71,7 +71,7 @@
       "name": "tars",
       "source": "./output-styles",
       "description": "A no-BS engineering partner output style. Answers first in a line or two, challenges weak reasoning, separates implemented from verified, and stays in scope.",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "author": {
         "name": "Mohammed"
       },

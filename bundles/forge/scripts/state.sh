@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# toolkit/state.sh — what is set up in THIS repository, and what is not.
+# forge/state.sh — what is set up in THIS repository, and what is not.
 #
 # Contract:
 #   in   : $1 = repo root (default: $PWD)
@@ -16,7 +16,7 @@ cd "$ROOT" 2>/dev/null || { echo "error: cannot enter $ROOT"; exit 1; }
 CFG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 say() { printf '%s: %s\n' "$1" "$2"; }
 
-echo "# toolkit state v1"
+echo "# forge state v1"
 say repo "$(basename "$PWD")"
 
 # ---------------------------------------------------------------- charter
@@ -50,7 +50,7 @@ say tars.style "${STYLE:-none}"
 # Both halves are needed on a native or VS Code install, where Claude Code's own
 # auto-updater is off and gates the plugin one. Reported separately so the
 # advice can name the missing half rather than guessing.
-MARKET="${2:-claude-toolkit}"
+MARKET="${2:-claude-forge}"
 have() { command -v "$1" >/dev/null 2>&1; }
 AU=no
 for f in "$CFG/settings.json" .claude/settings.json .claude/settings.local.json; do

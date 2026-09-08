@@ -15,7 +15,7 @@ what the user accepted, and reports drift later. That is the whole contract.
 
 | Install | Style name | Detected as |
 | --- | --- | --- |
-| Plugin (`tars@claude-toolkit`) | `tars:TARS` | `companion.tars: enabled` |
+| Plugin (`tars@claude-forge`) | `tars:TARS` | `companion.tars: enabled` |
 | File (`install.sh`) | `TARS` | `style.file_user: yes` or `style.file_project: yes` |
 
 Write the name `companions.sh` reports in `style.name`. Never construct it

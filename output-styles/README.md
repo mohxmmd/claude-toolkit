@@ -86,7 +86,7 @@ including a case where the default style already does fine.
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
-claude plugin install tars@claude-toolkit
+claude plugin install tars@claude-forge
 ```
 
 Then, in Claude Code:
@@ -131,7 +131,7 @@ gets the same style.
 Plugin install:
 
 ```bash
-claude plugin uninstall tars@claude-toolkit
+claude plugin uninstall tars@claude-forge
 ```
 
 File install:
@@ -230,7 +230,10 @@ rules.
 - **The "no em dashes" rule is the weakest one in the file.** v1.1 prohibited
   them and they appeared 18 times in a 17-turn evaluation. 2.0 names a
   replacement instead, which held for four turns. Small sample. Do not rely on
-  it.
+  it. It is also scoped: it governs prose TARS writes, not text a tool, skill or
+  template dictates verbatim. A skill that tells Claude to write a specific line
+  containing an em dash wins, because a corrupted command is worse than a
+  punctuation mark.
 - **On large open-ended questions it is closer to the default than you would
   hope.** On a migration question TARS wrote 657 words to the default's 635.
   The difference is that TARS opens with the recommendation and names the hard
@@ -262,7 +265,7 @@ resolve the other.
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
-claude plugin install tars@claude-toolkit
+claude plugin install tars@claude-forge
 ```
 
 Then `/config` → **Output style** → **tars:TARS** → `/clear`.
@@ -293,7 +296,7 @@ worked on every version tested.
 ### Which to pick
 
 **Plugin**, if you already use the marketplace. It updates with
-`claude plugin update tars@claude-toolkit` and uninstalls cleanly.
+`claude plugin update tars@claude-forge` and uninstalls cleanly.
 
 **File**, if you want TARS without a marketplace, want to pin a hand-edited
 copy, or want it in one project only:

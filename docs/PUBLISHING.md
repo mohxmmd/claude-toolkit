@@ -6,7 +6,7 @@ The end state: someone runs two commands and has your tools.
 
 ```bash
 claude plugin marketplace add <you>/claude-toolkit
-claude plugin install toolkit@claude-toolkit
+claude plugin install forge@claude-forge
 ```
 
 Nothing here requires a GitHub Action, a package registry, or a release
@@ -24,7 +24,8 @@ Three things carry a name that is probably not yours. Change them everywhere:
 |---|---|
 | `mohxmmd` | Every URL in every README, `install.sh`, and both docs directories |
 | `Mohammed` | The `owner` and `author` fields in all five manifests |
-| `claude-toolkit` | The repository name, if you rename it |
+| `claude-toolkit` | The repository name, in every clone URL, if you rename it |
+| `claude-forge` | The marketplace name, in `marketplace.json` and every `install X@claude-forge` |
 
 Find every occurrence first:
 
@@ -67,12 +68,12 @@ for f in .claude-plugin/marketplace.json \
          skills/craft/.claude-plugin/plugin.json \
          skills/charter/.claude-plugin/plugin.json \
          output-styles/.claude-plugin/plugin.json \
-         bundles/toolkit/.claude-plugin/plugin.json; do
+         bundles/forge/.claude-plugin/plugin.json; do
   node -e "JSON.parse(require('fs').readFileSync('$f','utf8'))" || echo "BAD: $f"
 done
 
 # plugins validate
-for d in ./skills/charter ./skills/craft ./output-styles ./bundles/toolkit; do
+for d in ./skills/charter ./skills/craft ./output-styles ./bundles/forge; do
   npx -y @anthropic-ai/claude-code plugin validate "$d"
 done
 
@@ -97,7 +98,7 @@ nothing, which is the worst failure mode available because it looks like success
 ```bash
 git init                       # if this is not already a repository
 git add -A
-git commit -m "feat: Claude Toolkit — Charter, Craft, TARS and the bundle"
+git commit -m "feat: Claude Forge — Charter, Craft, TARS and the bundle"
 ```
 
 Create the repository and push. With the GitHub CLI:
@@ -125,28 +126,28 @@ Do not skip this. Test it the way a stranger would, from a clean directory:
 
 ```bash
 claude plugin marketplace add YOUR-USERNAME/claude-toolkit
-claude plugin install toolkit@claude-toolkit
+claude plugin install forge@claude-forge
 claude plugin list
 ```
 
-Expect four plugins: `toolkit`, and the three it pulled in as dependencies.
+Expect four plugins: `forge`, and the three it pulled in as dependencies.
 
 Restart Claude Code, then in a scratch repository:
 
 ```
-/toolkit:setup
+/forge:setup
 ```
 
-If `/toolkit:setup` does not exist, one of the three dependencies failed to
+If `/forge:setup` does not exist, one of the three dependencies failed to
 enable — Claude Code disables a plugin whose dependencies are unsatisfied.
 `claude plugin list` will show which.
 
 ### Removing your test install
 
 ```bash
-claude plugin uninstall toolkit@claude-toolkit
+claude plugin uninstall forge@claude-forge
 claude plugin prune
-claude plugin marketplace remove claude-toolkit
+claude plugin marketplace remove claude-forge
 ```
 
 ---
@@ -159,8 +160,8 @@ claude plugin marketplace remove claude-toolkit
 > existing user keeps running the old code — including you.
 >
 > ```console
-> $ claude plugin update toolkit@claude-toolkit
-> ✔ toolkit is already at the latest version (0.1.0).      # nothing happened
+> $ claude plugin update forge@claude-forge
+> ✔ forge is already at the latest version (0.1.0).      # nothing happened
 > ```
 >
 > **Every change users should receive needs a version bump.** A one-line
@@ -198,7 +199,7 @@ git push
 claude plugin tag ./skills/charter --push
 ```
 
-**Bumping a component means checking the bundle.** `bundles/toolkit` pins its
+**Bumping a component means checking the bundle.** `bundles/forge` pins its
 dependencies with `^` ranges. A major bump of any component — or a minor bump on
 a `0.x` line, which semver treats as breaking — needs the bundle's range updated
 in the same commit. CI fails the build if it does not resolve.
@@ -206,8 +207,8 @@ in the same commit. CI fails the build if it does not resolve.
 Users get the new version with:
 
 ```bash
-claude plugin marketplace update claude-toolkit    # refresh the catalogue first
-claude plugin update toolkit@claude-toolkit        # then the plugin
+claude plugin marketplace update claude-forge    # refresh the catalogue first
+claude plugin update forge@claude-forge        # then the plugin
 ```
 
 Both steps matter: the first refreshes the marketplace's view of what versions
@@ -250,7 +251,7 @@ tracker.
 |---|---|
 | `marketplace add` fails | Repository is private, or `.claude-plugin/marketplace.json` is missing or malformed |
 | Plugin installs, commands never appear | You did not restart. Plugins load at session start |
-| `/toolkit:setup` missing after installing the bundle | A dependency is disabled, so the bundle is disabled too |
+| `/forge:setup` missing after installing the bundle | A dependency is disabled, so the bundle is disabled too |
 | A plugin's `source` path 404s | `source` in the marketplace is relative to the repository root and is case-sensitive |
 | Version mismatch on install | `plugin.json` and the marketplace entry disagree. Run the check above |
 | Pushed a fix, users still see the old behaviour | You did not bump the version. The cache is keyed by it |

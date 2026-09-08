@@ -1,4 +1,4 @@
-# Toolkit
+# Forge
 
 **Installs Charter, Craft and TARS together, and wires them up in one pass.**
 
@@ -12,21 +12,22 @@ see [docs/AUTO-UPDATE.md](../../docs/AUTO-UPDATE.md). Without the script:
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
-claude plugin install toolkit@claude-toolkit
+claude plugin install forge@claude-forge
 ```
 
 Restart Claude Code, then in the repository you want set up:
 
 ```
 /charter:init       the actual setup — two to five questions, about a minute
-/toolkit:setup      where am I, and what should I type next
+/forge:setup      where am I, and what should I type next
+/forge:doctor     what is stale, duplicated or contradictory across my AI docs
 ```
 
 `/charter:init` does the work: it surveys the repo, asks its questions, shows a
 diff, and writes the working agreement and boundaries. It also offers to wire
 TARS and Craft, since the bundle guarantees both are installed.
 
-`/toolkit:setup` is an orientation. It reads what is configured in this
+`/forge:setup` is an orientation. It reads what is configured in this
 repository and prints the one command to type next. **It writes nothing.**
 
 ---
@@ -60,9 +61,9 @@ command instead of three.
 content you would be missing.
 
 ```bash
-claude plugin install charter@claude-toolkit
-claude plugin install craft@claude-toolkit
-claude plugin install tars@claude-toolkit
+claude plugin install charter@claude-forge
+claude plugin install craft@claude-forge
+claude plugin install tars@claude-forge
 ```
 
 ---
@@ -85,14 +86,14 @@ That is also the reason the coupling lives here rather than in Charter. Charter
 declaring these dependencies would mean copying `skills/charter/` out of this
 repository produced a plugin that silently did nothing.
 
-Full reasoning: [docs/toolkit/bundle.md](../../docs/toolkit/bundle.md).
+Full reasoning: [docs/forge/bundle.md](../../docs/forge/bundle.md).
 
 ---
 
 ## Uninstalling
 
 ```bash
-claude plugin uninstall toolkit@claude-toolkit
+claude plugin uninstall forge@claude-forge
 claude plugin prune
 ```
 

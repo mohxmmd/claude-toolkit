@@ -8,7 +8,7 @@ READMEs — nothing here does anything the tools do not already do.
 If you installed the bundle and want to know where you are:
 
 ```
-/toolkit:setup
+/forge:setup
 ```
 
 That prints what is configured in this repository and the one command to type
@@ -68,7 +68,8 @@ Both route identically.
 ```
 
 `config.md` is the only file you ever need to open. Anything you list under
-`## Do not change` in it is a hard gate, not a preference.
+`## Do not change` in it is honoured absolutely, not weighed as a preference. It
+binds CRAFT; the enforced form is an `Edit()` deny rule that atlas prints.
 
 ## Turning the tone down
 
@@ -125,7 +126,7 @@ claude --plugin-dir /path/to/claude-toolkit/output-styles
 
 `--plugin-dir` is repeatable, so you can load all three at once.
 
-The `toolkit` bundle is the exception and will not work this way. It declares
+The `forge` bundle is the exception and will not work this way. It declares
 dependencies, there is no marketplace to resolve them against, and Claude Code
 silently disables a plugin whose dependencies are unsatisfied. Load the three
-components directly instead — you only lose `/toolkit:setup`.
+components directly instead — you only lose `/forge:setup`.

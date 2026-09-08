@@ -120,7 +120,51 @@ for b in vendor/bin/phpunit vendor/bin/pest vendor/bin/pint vendor/bin/php-cs-fi
   [ -x "$b" ] && BINS="$BINS$b
 "
 done
+# project-local task runners, which are where bespoke destructive commands live
+for b in bin/*; do
+  [ -f "$b" ] && [ -x "$b" ] && BINS="$BINS$b
+"
+done
 sayif cmd.local_bins "$(printf '%s' "$BINS" | cap)"
+
+# ---------------------------------------------------------------- destructive
+# The generic DB preset covers `migrate:fresh`. It does not cover the command
+# this team wrote and named `cms:restore`, which truncates rows. Every runner
+# already enumerated above is re-read here and matched for a destructive verb.
+# Names only. Nothing is executed; Charter verifies these in its own step.
+DESTRUCTIVE_RE='(^|[:_-])(restore|reset|wipe|flush|drop|prune|purge|truncate|fresh|destroy|nuke|teardown|rollback|erase)([:_-]|$)'
+DEST=""
+add_dest() { printf '%s\n' "$2" | tr ',' '\n' | grep -qE "$DESTRUCTIVE_RE" 2>/dev/null; }
+scan_dest() { # scan_dest <prefix> <newline list>
+  printf '%s\n' "$2" | grep -E "$DESTRUCTIVE_RE" 2>/dev/null | while read -r c; do
+    [ -n "$c" ] && printf '%s%s\n' "$1" "$c"
+  done
+}
+if [ -f package.json ]; then
+  if [ "$JQ" = 1 ]; then NS=$(jq -r '.scripts // {} | keys[]' package.json 2>/dev/null)
+  else NS=$(sed -n '/"scripts"/,/}/p' package.json | grep -oE '"[a-zA-Z0-9:_-]+" *:' | tr -d '":' | sed 's/ *$//' | grep -v '^scripts$'); fi
+  DEST="$DEST$(scan_dest 'npm run ' "$NS")
+"
+fi
+[ -f composer.json ] && [ "$JQ" = 1 ] && DEST="$DEST$(scan_dest 'composer ' "$(jq -r '.scripts // {} | keys[]' composer.json 2>/dev/null)")
+"
+[ -f Makefile ] && DEST="$DEST$(scan_dest 'make ' "$(grep -E '^[a-zA-Z0-9_.-]+:' Makefile | cut -d: -f1 | sort -u)")
+"
+{ [ -f justfile ] || [ -f Justfile ]; } && DEST="$DEST$(scan_dest 'just ' "$(grep -hE '^[a-zA-Z0-9_-]+( .*)?:' justfile Justfile 2>/dev/null | cut -d: -f1 | cut -d' ' -f1 | sort -u)")
+"
+DEST="$DEST$(scan_dest './' "$(printf '%s' "$BINS" | grep '^bin/' | sed 's#^bin/##')")
+"
+# Framework command catalogues, when the framework registers its own verbs.
+# These are FILE reads of registered command names, never an execution.
+[ -f artisan ] && [ -d app/Console/Commands ] && DEST="$DEST$(scan_dest 'php artisan ' \
+  "$(grep -rhoE "signature[[:space:]]*=[[:space:]]*'[^']+" app/Console/Commands 2>/dev/null \
+     | sed "s/.*'//" | cut -d' ' -f1 | sort -u)")
+"
+[ -d lib/tasks ] && DEST="$DEST$(scan_dest 'rake ' \
+  "$(grep -rhoE '^[[:space:]]*task[[:space:]]+:?[a-z0-9_]+' lib/tasks 2>/dev/null \
+     | sed 's/.*task[[:space:]]*:*//' | sort -u)")
+"
+sayif danger.destructive_cmds "$(printf '%s\n' "$DEST" | grep . | first - 10 | cap)"
 
 # ---------------------------------------------------------------- quality gates
 Q=""

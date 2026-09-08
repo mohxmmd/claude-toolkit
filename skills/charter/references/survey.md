@@ -19,6 +19,7 @@
 | `danger.paths` | Which questions to ask, which deny rules to emit, which path-scoped rules to offer. |
 | `danger.secret_files` | Names feeding the secrets deny block. Never open these. |
 | `danger.db_tooling` | Selects the row of the database preset table. |
+| `danger.destructive_cmds` | This repo's *own* destructive commands, matched by verb across npm, composer, make, just, `bin/*`, artisan signatures and rake tasks. The generic DB preset never sees these. Each one is offered as a `deny` or `ask` in question 3, named in the user's own vocabulary. Never emit a rule for one without showing the user the command it came from. |
 | `shape.size_class` | `new` → new-project mode. `large` → cap reads harder and prefer per-area rules. |
 
 ## The read budget

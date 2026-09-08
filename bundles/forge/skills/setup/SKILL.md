@@ -1,12 +1,12 @@
 ---
 name: setup
-description: Show what the Claude Toolkit has set up in this repository and the exact next command to type. Use when the user runs /toolkit:setup or asks how to get started with the toolkit, what is configured here, or what to do next.
+description: Show what Claude Forge has set up in this repository and the exact next command to type. Use when the user runs /forge:setup or asks how to get started with Forge, what is configured here, or what to do next.
 disable-model-invocation: true
 allowed-tools:
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/state.sh *)
 ---
 
-# Toolkit: set up
+# Forge: set up
 
 State:
 
@@ -34,7 +34,7 @@ later diff, check, or update.
 ## Render this, from the values above
 
 ```
-TOOLKIT   <repo>
+FORGE     <repo>
 
 ✓/✗ Charter    <fence> · boundaries: <yes/no>      or: not run
 ✓/✗ Craft      .craft/config.md                    or: not run
@@ -69,7 +69,7 @@ Exactly one line, the first row that applies:
 | `craft.config: no` | `/craft:atlas` — reads the product, writes `.craft/config.md` |
 | `tars.style: none` | `/config` → Output style → `tars:TARS` → then `/clear` |
 | `autoupdate.marketplace: no` | `./setup.sh --auto-update-only` from a checkout — these tools change often |
-| Everything set | `nothing — you're set. /charter:status any time` |
+| Everything set | `nothing — you're set. /forge:doctor to check the surfaces you already have` |
 
 Charter comes before Craft. Charter's own setup offers to wire TARS and add the
 `/craft` routing line, so running it first means the other two need less.

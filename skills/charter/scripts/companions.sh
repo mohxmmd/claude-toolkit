@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# charter/companions.sh — which toolkit companions are available, and what is
+# charter/companions.sh — which Forge companions are available, and what is
 # already wired. Read-only.
 #
 # Contract:

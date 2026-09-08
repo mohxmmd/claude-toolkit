@@ -58,7 +58,7 @@ Smallest that fits; ties resolve downward. Escalating requires naming the struct
 
 ## Ledger and budget
 
-Write before implementing: `preserve` · `improve` · `uncertain` · `forbidden`, seeded from config and the request. **Zero violations of `forbidden` is a hard gate.**
+Write before implementing: `preserve` · `improve` · `uncertain` · `forbidden`, seeded from config and the request. **Zero violations of `forbidden`.**
 
 | posture | structure | visual | interaction | brand | content | motion |
 |---|---|---|---|---|---|---|

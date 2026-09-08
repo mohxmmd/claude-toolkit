@@ -1,5 +1,5 @@
 #!/bin/sh
-# Claude Toolkit installer.
+# Claude Forge installer.
 #
 # Adds the marketplace, installs the bundle (which pulls in Charter, Craft and
 # TARS), and turns on auto-update so you receive fixes without doing this again.
@@ -8,15 +8,15 @@
 
 set -eu
 
-REPO="${TOOLKIT_REPO:-mohxmmd/claude-toolkit}"
-MARKET="claude-toolkit"
+REPO="${FORGE_REPO:-mohxmmd/claude-toolkit}"
+MARKET="claude-forge"
 CFG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 SETTINGS="$CFG_DIR/settings.json"
 AUTO_UPDATE=1
 
 usage() {
     cat <<'USAGE'
-Install the Claude Toolkit: Charter, Craft and TARS.
+Install the Claude Forge: Charter, Craft and TARS.
 
 Usage:
   ./setup.sh [--no-auto-update] [--auto-update-only] [--help]
@@ -28,7 +28,7 @@ Options:
 
 Auto-update, when enabled, writes two things into your Claude Code settings:
 
-  extraKnownMarketplaces.claude-toolkit.autoUpdate = true
+  extraKnownMarketplaces.claude-forge.autoUpdate = true
       Refresh this marketplace and its installed plugins at session start.
 
   env.FORCE_AUTOUPDATE_PLUGINS = "1"
@@ -62,8 +62,8 @@ if [ "$AUTO_UPDATE" != 2 ]; then
     echo "Adding marketplace $REPO ..."
     claude plugin marketplace add "$REPO"
 
-    echo "Installing toolkit (with Charter, Craft and TARS) ..."
-    claude plugin install "toolkit@$MARKET"
+    echo "Installing forge (with Charter, Craft and TARS) ..."
+    claude plugin install "forge@$MARKET"
 fi
 
 # ------------------------------------------------------------ auto-update
@@ -74,7 +74,7 @@ Installed. Auto-update was NOT enabled.
 
 To update later:
   claude plugin marketplace update $MARKET
-  claude plugin update toolkit@$MARKET
+  claude plugin update forge@$MARKET
 
 Next:
   1. Restart Claude Code   (plugins load at session start)

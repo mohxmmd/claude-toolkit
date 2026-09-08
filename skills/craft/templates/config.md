@@ -34,9 +34,12 @@ optional; the defaults above are enough to work with.
 
 ## Do not change
 
-<!-- Hard gate. CRAFT will refuse to touch anything listed here and will say so
-     rather than working around it. Give the reason; the reason is what lets
-     CRAFT tell an exception from a violation. -->
+<!-- CRAFT stops here and says so rather than working around it. This is a
+     convention, not an enforced boundary: it shapes what CRAFT does, it does
+     not prevent an edit. For a path nothing may change, ask CRAFT to emit the
+     matching Edit() deny rule and install it with Charter.
+     Give the reason; the reason is what lets CRAFT tell an exception from a
+     violation. -->
 
 ## Known problems
 

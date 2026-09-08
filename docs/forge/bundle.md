@@ -1,11 +1,11 @@
-# The toolkit bundle
+# The forge bundle
 
-`toolkit@claude-toolkit` installs Charter, Craft and TARS together and gives you
+`forge@claude-forge` installs Charter, Craft and TARS together and gives you
 one command to wire them up. It ships no behaviour of its own beyond that.
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
-claude plugin install toolkit@claude-toolkit
+claude plugin install forge@claude-forge
 ```
 
 Restart Claude Code, then in the repository you want set up:
@@ -18,22 +18,24 @@ Restart Claude Code, then in the repository you want set up:
 
 ## What it actually contains
 
-Two files. A manifest and one skill.
+A manifest and two skills, both read-only.
 
 ```
-bundles/toolkit/
+bundles/forge/
 ├── .claude-plugin/plugin.json     dependencies + metadata
 ├── scripts/state.sh               read-only repository state
-└── skills/setup/SKILL.md          /toolkit:setup
+├── scripts/doctor.sh              read-only context-surface audit
+├── skills/setup/SKILL.md          /forge:setup
+└── skills/doctor/SKILL.md         /forge:doctor
 ```
 
 The manifest is the whole mechanism:
 
 ```json
 "dependencies": [
-  { "name": "charter", "marketplace": "claude-toolkit", "version": "^0.1.0" },
-  { "name": "craft",   "marketplace": "claude-toolkit", "version": "^0.1.0" },
-  { "name": "tars",    "marketplace": "claude-toolkit", "version": "^1.1.0" }
+  { "name": "charter", "marketplace": "claude-forge", "version": "^0.1.0" },
+  { "name": "craft",   "marketplace": "claude-forge", "version": "^0.1.0" },
+  { "name": "tars",    "marketplace": "claude-forge", "version": "^1.1.0" }
 ]
 ```
 
@@ -56,12 +58,12 @@ actually happens.
 warns — disables, silently. Verified directly:
 
 ```console
-$ claude --plugin-dir ./bundles/toolkit -p 'list your skills'
-(no toolkit:setup)
+$ claude --plugin-dir ./bundles/forge -p 'list your skills'
+(no forge:setup)
 
 $ # same plugin, dependencies removed from the manifest
-$ claude --plugin-dir ./bundles/toolkit-nodeps -p 'list your skills'
-- toolkit:setup
+$ claude --plugin-dir ./bundles/forge-nodeps -p 'list your skills'
+- forge:setup
 ```
 
 If Charter declared those dependencies, then copying `skills/charter/` out of
@@ -88,18 +90,18 @@ claude --plugin-dir ./skills/charter \
        --plugin-dir ./output-styles
 ```
 
-You lose only `/toolkit:setup`, which is an orientation command — the three
-components' own commands are unaffected.
+You lose only `/forge:setup` and `/forge:doctor`, which report and write
+nothing — the three components' own commands are unaffected.
 
 ---
 
-## What `/toolkit:setup` does
+## What `/forge:setup` does
 
 Reads what is configured in the current repository and prints the one command to
 type next. That is all. It writes nothing.
 
 ```
-TOOLKIT   my-app
+FORGE     my-app
 
 ✗ Charter    not run
 ✗ Craft      not run
@@ -132,6 +134,42 @@ plugins, and point at the right next command.
 
 ---
 
+## What `/forge:doctor` does
+
+The one job no component can do alone: read every AI context surface in the repo
+and check them against each other.
+
+Each tool here is good at writing things down. None of them reads what the others
+wrote. A repository accumulates `CLAUDE.md`, auto-memory, `.claude/rules/`,
+`.ai/rules/`, `.project-context/`, `.craft/` and a house skill — all loaded, none
+reconciled, and nothing saying which wins when two disagree.
+
+```
+$ /forge:doctor
+
+count.always_loaded_surfaces: 5
+warn.surfaces: 5 always-loaded surfaces; nothing states which wins when two disagree
+dead.ref: CLAUDE.md -> docs/architecture.md
+dead.cmd: CLAUDE.md -> npm run bundle
+dup.assertion: CLAUDE.md == .ai/rules/console.md :: Never commit unless explicitly asked.
+tier.claim: .craft/config.md:2 :: CRAFT will refuse to touch public/theme/bundle.css
+tier.verdict: no permission rules exist, so every enforcement claim above is a convention
+precedence.stated_in: nowhere
+```
+
+The last two lines are the check that mattered enough to build the command. Prose
+claiming an enforcement it does not have is the failure mode this whole toolkit
+warns other tools about, and Forge shipped one: `.craft/config.md` said CRAFT
+would "refuse to touch" a path while nothing stopped an edit to it. `/forge:doctor`
+finds that class of bug by comparing the words in a document against the
+permission rules that actually exist.
+
+**It reports and never repairs**, including the trivial fixes. Adding a seventh
+surface whose job is reconciling the other six would be the same mistake with
+better intentions.
+
+---
+
 ## Is the bundle worth installing
 
 If you want all three: yes, it is one command instead of three and one setup
@@ -141,9 +179,9 @@ If you want one or two: no. Install those directly. The bundle has no content of
 its own that you would be missing.
 
 ```bash
-claude plugin install charter@claude-toolkit
-claude plugin install craft@claude-toolkit
-claude plugin install tars@claude-toolkit
+claude plugin install charter@claude-forge
+claude plugin install craft@claude-forge
+claude plugin install tars@claude-forge
 ```
 
 ---
@@ -151,7 +189,7 @@ claude plugin install tars@claude-toolkit
 ## Uninstalling
 
 ```bash
-claude plugin uninstall toolkit@claude-toolkit
+claude plugin uninstall forge@claude-forge
 claude plugin prune
 ```
 

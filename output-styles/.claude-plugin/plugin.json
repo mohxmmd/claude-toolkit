@@ -1,6 +1,6 @@
 {
   "name": "tars",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "A no-BS engineering partner output style for Claude Code. Answers first in a line or two, challenges weak reasoning, separates implemented from verified, and stays in scope.",
   "author": {
     "name": "Mohammed"

@@ -115,7 +115,7 @@ TARS has two install paths and they expose **different names**:
 
 | Install | Style name |
 |---|---|
-| Plugin — `claude plugin install tars@claude-toolkit` | `tars:TARS` |
+| Plugin — `claude plugin install tars@claude-forge` | `tars:TARS` |
 | File — `install.sh` or a manual copy | `TARS` |
 
 Claude Code namespaces plugin-provided output styles as `<plugin>:<style>`. Both

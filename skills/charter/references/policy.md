@@ -2,21 +2,24 @@
 
 Read this before generating a single permission rule.
 
-Claude Code's own documentation is explicit: CLAUDE.md is *context, not enforced configuration*. A git, database, or deployment policy written as prose is a suggestion the model may or may not follow. A `permissions` rule is evaluated by the client **before the model is consulted** and cannot be argued around.
+Claude Code's own documentation is explicit: CLAUDE.md is *context, not enforced configuration*. A git, database, or deployment policy written as prose is a suggestion the model may or may not follow. A `permissions` rule is evaluated by the client **before the model is consulted**, so the model cannot talk its way past it.
 
 That distinction governs the vocabulary used everywhere in Charter:
 
-| Tier | Mechanism | Binding? | Called |
+| Tier | Mechanism | Enforced by | Called |
 | --- | --- | --- | --- |
-| 1 | `permissions` deny / ask | Yes, client-side | a **boundary** |
-| 2 | `PreToolUse` hook | Yes, client-side | a **guard** |
-| 3 | A line in the working agreement | No | a **convention** |
+| 0 | `sandbox` filesystem / network | The operating system | a **sandbox** |
+| 1 | `permissions` deny / ask | The client, before the model | a **boundary** |
+| 2 | `PreToolUse` hook | The client, before the tool | a **guard** |
+| 3 | A line in the working agreement | Nothing | a **convention** |
 
-Never describe a tier-3 item as a boundary, in generated output or in conversation.
+Never describe a tier-3 item as a boundary, in generated output or in conversation. Never describe a tier-1 boundary as a sandbox.
+
+**What a tier-1 boundary is not.** It matches command *text*. It stops the model from choosing a denied command and stops an accident from becoming a `git push --force`. It is not containment. A shell that re-enters through `sh -c '<command>'` is one command with a quoted argument, and `sh`/`bash`/`zsh` are not in the wrapper list Claude Code strips before matching, so the inner command is never matched against your rules. Gotcha 12 covers the mitigation. Real containment is tier 0.
 
 ---
 
-## The eleven gotchas
+## The seventeen gotchas
 
 A generator that ignores these emits rules that look correct and match nothing. Each one is a real behaviour of the permission matcher.
 
@@ -52,7 +55,40 @@ So safety must live in deny and ask. Never rely on an allow rule to constrain an
 Never emit them there.
 
 **11. Output redirection targets are checked as file writes.**
-`>`, `>>`, `2>` are checked against Edit rules and protected paths. An allow on a command does not license its redirect target. `/dev/null` is exempt.
+`>`, `>>`, `2>` are checked against Edit rules and protected paths. An allow on a command does not license its redirect target. `/dev/null` is exempt. Input redirects (`< file`) are checked against `Read` rules from v2.1.257.
+
+**12. `sh -c` and friends re-enter the shell and are never split.**
+`sh -c 'git push origin main'` is one command whose argument happens to be a command. No rule written for `git push` sees it. Neither do `bash -c`, `zsh -c`, `eval`, or `env`. The docs' own table shows `Bash(* --version)` matching `bash -c 'echo hi' --version`, which is the same hole from the other side.
+**Always emit the shell re-entry ask block below.** It is the difference between "stops accidents" and "stops accidents and the obvious way around them".
+
+**13. A field-scoped rule is accepted, ignored, and warned about.**
+`Bash(command:rm *)` names the tool's primary content field. Claude Code ignores it and warns at startup, because a compound command would bypass it. Same for `Read(file_path:...)`, `Grep(path:...)`, `NotebookEdit(notebook_path:...)`. Write `Bash(rm *)`, `Read(./path)`, `WebFetch(domain:host)`.
+
+**14. An unparseable compound is not split, so no allow rule matches it.**
+`npm test &&` with nothing after it is unparseable. `Bash(npm *)` does not approve it and the user is prompted. Never emit a rule that depends on a compound parsing cleanly.
+
+**15. Deny and ask see past any leading assignment. Allow does not.**
+`Bash(rm *)` in deny still matches `FOO=bar rm -rf tmp/`. An allow rule only matches past an assignment of a *known-safe* variable. Safety in deny, convenience in allow — the asymmetry is deliberate and in your favour.
+
+**16. `xargs` is stripped only when it has no flags.**
+`Bash(grep *)` covers `xargs grep pattern`. It does not cover `xargs -n1 grep pattern`, which matches as an `xargs` command. If `xargs` matters, write the `xargs` rule too.
+
+**17. `*` matches at any position, including before the program.**
+`Bash(* --version)` matches `node --version` and also `bash -c 'echo hi' --version`. Never emit a rule whose first character is `*`.
+
+---
+
+## Shell re-entry — always emitted, not a question
+
+The one gap a text matcher cannot close by itself. Emitted in every repo, at `ask` rather than `deny`, because each of these is occasionally the right tool and a prompt is enough to stop it being silent:
+
+```
+ask:   Bash(sh -c *)      Bash(bash -c *)    Bash(zsh -c *)
+       Bash(eval *)       Bash(env *)
+       Bash(watch *)      Bash(setsid *)     Bash(flock *)
+```
+
+Do not deny these — a denied `env` breaks ordinary work and teaches the user to disable Charter. Do **not** add a rule for `find -exec`: it already prompts in Manual mode whatever you write, and a rule with `*` before `-exec` trips the startup warning in gotcha 4.
 
 ---
 
@@ -130,6 +166,36 @@ Add `deny: Bash(mysql *) Bash(psql *) Bash(mongosh *) Bash(redis-cli *)`.
 
 **Production is never a question.** Every preset denies commands carrying a production marker.
 
+### This repo's own destructive commands
+
+The presets above cover the framework's verbs. They do not cover the command this team wrote. `danger.destructive_cmds` carries those: an npm script called `db:reset`, a make target called `db-wipe`, an artisan command called `cms:restore` that truncates rows.
+
+Emit one rule per entry, at the same tier as the preset's own destructive row (`deny` under read-only, `ask` under local-migrations). Show the user each command beside the rule, in their vocabulary:
+
+```
+Bash(php artisan cms:restore*)   deny   your own command, from app/Console/Commands
+Bash(npm run db:reset*)          deny   your own script, from package.json
+```
+
+**Never emit a rule for one of these silently.** The verb match is a heuristic; only the user knows whether `prune` clears a cache or drops a table. A wrong deny here is the fastest way to make someone turn Charter off.
+
+---
+
+## Invocation variants
+
+The matcher is literal-prefix. `Bash(vendor/bin/pint --dirty*)` does not match `./vendor/bin/pint --dirty`, and the user gets prompted for the command Charter just told them was allowed. Half-working allow rules are worse than none.
+
+Expand every generated command rule into all forms that actually resolve:
+
+| Verified as | Also emit |
+| --- | --- |
+| `vendor/bin/<x>` | `./vendor/bin/<x>` |
+| `node_modules/.bin/<x>` | `./node_modules/.bin/<x>`, `npx <x>` |
+| `bin/<x>` | `./bin/<x>` |
+| `npm run <s>` | `<pm> run <s>` for the detected `stack.node_pm` when it is not npm |
+
+Do not expand into a form the survey did not find. `npx <x>` is emitted only when the binary exists in `node_modules/.bin`, because `npx` on a missing binary downloads and executes from the network.
+
 ---
 
 ## Deployment
@@ -147,6 +213,36 @@ allow: Bash(terraform plan*)  Bash(terraform validate*)
 ```
 
 Staging targets move from deny to `ask` only on an explicit opt-in.
+
+---
+
+## Sandbox — offered once, never assumed
+
+Tier 0 is the only thing here the operating system enforces. Seatbelt on macOS, seccomp plus bubblewrap on Linux and WSL2. It applies to a Bash command **and every child process it spawns**, so it holds where a text matcher cannot: `sh -c`, a postinstall script, a compromised dependency.
+
+Offer it in Step 6 as a separate accept, never bundled with the boundaries, because it changes how commands run and a surprised user will disable it wholesale.
+
+```json
+{
+  "sandbox": {
+    "enabled": true,
+    "network": { "allowedDomains": ["<the package registry for stack.node_pm>", "*.github.com"] },
+    "credentials": { "files": [{ "path": "~/.ssh", "mode": "deny" },
+                               { "path": "~/.aws/credentials", "mode": "deny" }] }
+  },
+  "permissions": { "blockReadsOutsideWorkingDirectories": true }
+}
+```
+
+Rules for generating it:
+
+- **Never emit `filesystem.denyRead` from Charter.** Once managed settings configure `sandbox.filesystem` at all, only managed settings can set it. Use `credentials.files` for secrets and `blockReadsOutsideWorkingDirectories` for the general case. Both survive.
+- **Never emit `allowUnsandboxedCommands: false`** without asking. It removes the escape hatch, so a command the sandbox breaks cannot be retried, and the user has no way forward inside Claude Code.
+- **Never emit `network.strictAllowlist`.** It has no effect from project or local settings. Say so rather than writing a key that silently does nothing.
+- Derive `allowedDomains` from the detected stack: `registry.npmjs.org`, `pypi.org`, `packagist.org`, `proxy.golang.org`, `rubygems.org`, `crates.io`. Add `*.github.com` only when `git.remote_host` is github.
+- **Not available on native Windows.** When the platform is Windows and not WSL2, skip the offer entirely rather than writing a key that does nothing.
+
+State the honest version in the report: *"Sandboxed: filesystem and network, enforced by the OS. This is the only layer a shell escape does not get past."*
 
 ---
 
@@ -200,14 +296,27 @@ If the file already exists, **merge** — never overwrite. Claude Code combines 
 
 ## Self-check before writing
 
-- Every deny and ask rule has a space before any trailing `*`.
-- No `Read(./.env.*)` glob — secret files are enumerated, and `.env.example` stays readable.
-- No rule has a `*` before its subcommand.
-- No bare environment-runner allow (`docker exec`, `npx`, `devbox run`, `mise exec`).
-- No `Write(...)`, `Glob(...)`, `NotebookEdit(...)`, or `MultiEdit(...)` path rules.
-- No `defaultMode` key.
-- No allow rule is doing safety work.
-- Every allowed command was actually executed during init.
-- The secrets block is present.
+Do not run this by eye. Charter ships it as a script:
 
-After writing, the user can confirm the file parses with `claude doctor` — no invalid-settings or permission-rule warnings should appear.
+```
+${CLAUDE_PLUGIN_ROOT}/scripts/lint-rules.sh <the settings file you are about to write>
+```
+
+It asserts, and exits non-zero on any failure:
+
+- Every deny and ask rule has a space before any trailing `*`. (gotcha 3)
+- No rule starts with `*`, and no rule has a `*` before its subcommand. (4, 17)
+- No `Read(./.env.*)` glob — secret files are enumerated, `.env.example` stays readable.
+- No bare environment-runner allow: `docker exec`, `npx`, `devbox run`, `mise exec`, `direnv exec`. (6)
+- No `Write(...)`, `Glob(...)`, `NotebookEdit(...)`, `MultiEdit(...)` path rule. (8)
+- No field-scoped rule: `Bash(command:...)`, `Read(file_path:...)`, `Grep(path:...)`. (13)
+- No `defaultMode` key in a project or local file. (10)
+- No allow rule is doing safety work: nothing in `allow` also appears in `deny` or `ask`.
+- The secrets block is present.
+- The shell re-entry ask block is present. (12)
+- No `sandbox.filesystem` key, no `network.strictAllowlist`, no unrequested `allowUnsandboxedCommands`.
+
+**Write the file only after the linter passes**, and report its result in Step 7. Two further checks it cannot make, which stay human:
+
+- Every allowed command was actually executed during Step 3.
+- `claude doctor` reports no invalid-settings or permission-rule warnings. The linter checks the rules Charter wrote; `doctor` checks what the installed client actually accepted.

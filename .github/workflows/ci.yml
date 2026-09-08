@@ -32,7 +32,7 @@ jobs:
           node -e "JSON.parse(require('fs').readFileSync('skills/craft/.claude-plugin/plugin.json','utf8'))"
           node -e "JSON.parse(require('fs').readFileSync('output-styles/.claude-plugin/plugin.json','utf8'))"
           node -e "JSON.parse(require('fs').readFileSync('skills/charter/.claude-plugin/plugin.json','utf8'))"
-          node -e "JSON.parse(require('fs').readFileSync('bundles/toolkit/.claude-plugin/plugin.json','utf8'))"
+          node -e "JSON.parse(require('fs').readFileSync('bundles/forge/.claude-plugin/plugin.json','utf8'))"
 
       - name: Check the installers
         run: |
@@ -47,7 +47,7 @@ jobs:
           npx -y @anthropic-ai/claude-code plugin validate ./skills/charter
           npx -y @anthropic-ai/claude-code plugin validate ./skills/craft
           npx -y @anthropic-ai/claude-code plugin validate ./output-styles
-          npx -y @anthropic-ai/claude-code plugin validate ./bundles/toolkit
+          npx -y @anthropic-ai/claude-code plugin validate ./bundles/forge
 
       - name: Marketplace agrees with every plugin manifest
         run: |
@@ -71,7 +71,7 @@ jobs:
             const fs = require("fs");
             const mk = JSON.parse(fs.readFileSync(".claude-plugin/marketplace.json", "utf8"));
             const have = new Map(mk.plugins.map(p => [p.name, p.version]));
-            const deps = JSON.parse(fs.readFileSync("bundles/toolkit/.claude-plugin/plugin.json", "utf8")).dependencies;
+            const deps = JSON.parse(fs.readFileSync("bundles/forge/.claude-plugin/plugin.json", "utf8")).dependencies;
             let bad = 0;
             for (const d of deps) {
               if (!have.has(d.name)) { console.error(`dependency ${d.name} is not in the marketplace`); bad++; continue; }
@@ -88,7 +88,9 @@ jobs:
 
       - name: Syntax check the CHARTER scripts
         run: |
-          for file in skills/charter/scripts/*.sh skills/charter/tests/*.sh; do
+          for file in skills/charter/scripts/*.sh skills/charter/tests/*.sh \
+                      bundles/forge/scripts/*.sh bundles/forge/tests/*.sh \
+                      skills/craft/tests/*.sh; do
             bash -n "$file"
           done
 
@@ -97,6 +99,16 @@ jobs:
           chmod +x skills/charter/scripts/*.sh skills/charter/tests/*.sh
           ./skills/charter/tests/make-fixtures.sh
           ./skills/charter/tests/run.sh
+
+      - name: CRAFT measurement gate
+        run: |
+          chmod +x skills/craft/tests/run.sh
+          ./skills/craft/tests/run.sh
+
+      - name: FORGE doctor gate
+        run: |
+          chmod +x bundles/forge/scripts/*.sh bundles/forge/tests/*.sh
+          ./bundles/forge/tests/run.sh
 
       - name: Version consistency
         run: node skills/craft/scripts/version.mjs --check

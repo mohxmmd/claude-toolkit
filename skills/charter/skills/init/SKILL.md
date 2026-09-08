@@ -8,6 +8,7 @@ allowed-tools:
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/fingerprint.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh *)
+  - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/lint-rules.sh *)
 ---
 
 # Charter: initialise
@@ -40,7 +41,7 @@ Run once:
 ${CLAUDE_PLUGIN_ROOT}/scripts/survey.sh .
 ```
 
-Then run `${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh .` to learn what this repo already loads into every session, and `${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh .` to learn which toolkit companions are installed. All three are read-only.
+Then run `${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh .` to learn what this repo already loads into every session, and `${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh .` to learn which Forge companions are installed. All three are read-only.
 
 Read [references/survey.md](../../references/survey.md) for how to interpret the output and what each key drives.
 
@@ -80,8 +81,10 @@ Use **one** `AskUserQuestion` call carrying only the questions that survive the 
 | --- | --- | --- | --- |
 | 1 | Who else works in this repo? *solo / team / open source* | Never suppressed, but pre-select from `git.authors_90d` | ≥3 authors → team; 1 author → solo |
 | 2 | How much git autonomy should Claude have? *propose only / local commits / full* | Never — no repo can answer this | team → local commits; solo → local commits; open source → propose only |
-| 3 | Can Claude change the database on this machine? *read only / local migrations / no access* | `danger.db_tooling` and `danger.paths` both show no database surface | read only |
+| 3 | Can Claude change the database on this machine? *read only / local migrations / no access* | `danger.db_tooling`, `danger.paths` and `danger.destructive_cmds` all show no database surface | read only |
 | 4 | Anything here Claude must never touch? *checkboxes built from `danger.paths`* | No deploy tooling, infra directories, or unusual sensitive paths found | nothing checked |
+
+When `danger.destructive_cmds` is non-empty, list those commands inside question 3 rather than adding a question. They are the same decision, and the user recognises `cms:restore` faster than they recognise "database autonomy".
 
 Do **not** ask about: production confirmation (always required), secrets (always denied), branch naming, commit message style (infer from `git.style_conventional`), whether to run tests, or the CI provider.
 
@@ -114,7 +117,43 @@ Settings scope follows Q1:
 - **team** or **open source** → `.claude/settings.json` (committed, so teammates inherit it)
 - **solo** → `.claude/settings.local.json` (personal, untracked)
 
+**Then offer tier 0 separately.** Permission rules match command text; the sandbox is enforced by the operating system and covers what a text matcher cannot, including a shell that re-enters through `sh -c`. Offer it as its own accept in Step 6, never bundled with the boundaries, and skip the offer entirely on native Windows. The keys Charter may and may not write are in [references/policy.md](../../references/policy.md#sandbox--offered-once-never-assumed).
+
 ## Step 6 — Propose, then write
+
+### 6a. If the file is already oversize, propose cuts first
+
+`audit.sh` reports `warn.oversize` when `CLAUDE.md` is past ~200 lines, the point where adherence drops. **When that warning fired, do not propose a fence yet.** Adding 35 lines to a file Charter just called too long is the diagnosis contradicting itself.
+
+Instead, name what to cut, from `audit.sh`'s own findings, in this order:
+
+1. `hint.derivable` — directory trees and dependency lists the model derives anyway.
+2. `dead.ref` — paths named in the file that no longer exist.
+3. `hint.scopeable` — content that belongs in a path-scoped `.claude/rules/*.md`.
+
+Show it as a single choice, then continue:
+
+```
+CLAUDE.md is 240 lines. Adherence drops past ~200, and Charter wants 35 more.
+
+  cut  a 22-line directory tree (derivable)          -22
+  cut  4 dead path references                         -4
+  move the 31-line "Testing" section to a rule file  -31
+
+  [t]rim then add   [a]dd anyway   [s]kip the fence
+```
+
+`add anyway` is a legitimate answer and is accepted without argument. What is not acceptable is adding silently.
+
+### 6b. Lint, then show the diff
+
+Write the candidate settings to a temp path and run:
+
+```
+${CLAUDE_PLUGIN_ROOT}/scripts/lint-rules.sh <temp file>
+```
+
+**A non-zero exit stops the write.** Fix the rules and re-run; never present rules the linter rejected. Report the pass count in Step 7.
 
 Show the complete proposal as a diff. Group it by file. For each permission rule, show the rule and one clause saying what it stops.
 
@@ -122,12 +161,13 @@ Show the complete proposal as a diff. Group it by file. For each permission rule
 PROPOSED CHANGES                              nothing is written until you accept
 
 CLAUDE.md                        +N lines inside a charter fence
-.claude/settings.json            +N permission rules
+.claude/settings.json            +N permission rules  (lint: N/N passed)
+.claude/settings.json            sandbox: OS-enforced   [separate accept]
 .claude/settings.local.json      outputStyle (omit when not offered/accepted)
 .claude/rules/<area>.md          new, loads only when those files are opened
 .claude/charter.json             new, never loaded into a session
 
-Accept?  [a]ll  [e]dit  [s]kip boundaries  [n]one
+Accept?  [a]ll  [e]dit  [s]kip boundaries  [x]skip sandbox  [n]one
 ```
 
 On accept, write in this order: rules files, settings, CLAUDE.md fence, then `charter.json` last so a partial run is detectable.
@@ -155,6 +195,13 @@ Offer, do not impose, a `.gitignore` entry for `.claude/settings.local.json` and
 ## Step 7 — Report
 
 Six lines maximum. What was written, what was verified, what was left unknown, and the one next action. Then stop — do not continue into unrelated work.
+
+Verification is reported in two parts, because they check different things:
+
+- `lint-rules.sh: N/N passed` — the rules Charter wrote are well-formed against the gotchas.
+- `claude doctor` — what the installed client actually accepted. Name it as the user's next check; do not claim it passed, because Charter did not run it.
+
+Never write "boundaries enforced" without saying which tier. If a sandbox was accepted, say so in the honest form: *"filesystem and network enforced by the OS; this is the only layer a shell escape does not get past."* If it was not, say the boundaries stop accidents and drift, not a determined shell.
 
 Two additions, each at most one line and only when true:
 

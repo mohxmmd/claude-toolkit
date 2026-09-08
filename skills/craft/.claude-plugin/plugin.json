@@ -1,6 +1,6 @@
 {
   "name": "craft",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Improve existing SaaS interfaces without losing the product's identity. Preserve-first UI/UX evolution: diagnoses before it designs, makes the smallest sufficient change, and proves the result.",
   "author": {
     "name": "Mohammed"

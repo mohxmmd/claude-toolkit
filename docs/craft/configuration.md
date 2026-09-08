@@ -55,8 +55,14 @@ highest-value paragraph in the file. It is what turns "improve this table" into
 
 ### `## Do not change`
 
-A **hard gate**, not advice. CRAFT will refuse to touch anything listed here and
-will say so rather than working around it.
+The strongest thing CRAFT reads. It stops here and says so rather than working
+around it.
+
+It is still a **convention**, not an enforced boundary. CRAFT reads this file;
+nothing prevents an edit to a path listed here. For a path that must be
+mechanically un-editable, ask CRAFT for the matching `Edit()` deny rule and
+install it with Charter, which writes rules the client evaluates before the
+model is consulted.
 
 ```markdown
 ## Do not change
@@ -66,7 +72,9 @@ will say so rather than working around it.
 ```
 
 Give the reason. `preserve` in the frontmatter is advisory and can lose to an
-explicit request; this section cannot.
+explicit request; this section does not. Both are things CRAFT reads, so both
+are conventions, and neither is a gate. The tier vocabulary is Charter's; see
+[charter/references/policy.md](../../skills/charter/references/policy.md).
 
 ### `## Known problems`
 

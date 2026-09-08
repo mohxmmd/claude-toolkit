@@ -26,7 +26,7 @@ Charter's job is to apply the correct configuration in one command, make what it
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
-claude plugin install charter@claude-toolkit
+claude plugin install charter@claude-forge
 ```
 
 Or load a local checkout directly, which is how the tests run:

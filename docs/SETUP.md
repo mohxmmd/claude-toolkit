@@ -1,6 +1,6 @@
 # Setup
 
-How to install and configure the Claude Toolkit from GitHub, from nothing.
+How to install and configure the Claude Forge from GitHub, from nothing.
 
 Everything here is one of two things: a `claude` command you paste, or a file you
 edit. There is no build step and nothing to compile.
@@ -35,7 +35,7 @@ git clone https://github.com/mohxmmd/claude-toolkit.git
 cd claude-toolkit && ./setup.sh
 ```
 
-That installs **four** things — the `toolkit` bundle plus Charter, Craft and
+That installs **four** things — the `forge` bundle plus Charter, Craft and
 TARS, which the bundle declares as dependencies — and turns on **auto-update**
 so you receive fixes without repeating this.
 
@@ -48,7 +48,7 @@ Without the script, and without auto-update:
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
-claude plugin install toolkit@claude-toolkit
+claude plugin install forge@claude-forge
 ```
 
 Restart Claude Code. Plugins are loaded at session start, so nothing you just
@@ -67,7 +67,7 @@ to set your output style and add a `/craft` routing line.
 Lost at any point:
 
 ```
-/toolkit:setup      what is configured here, and the one command to type next
+/forge:setup      what is configured here, and the one command to type next
 ```
 
 It reads state and prints a next step. It writes nothing, and it cannot run the
@@ -83,9 +83,9 @@ Nothing depends on anything else. Install only what you want.
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
 
-claude plugin install charter@claude-toolkit    # working agreement + boundaries
-claude plugin install craft@claude-toolkit      # UI/UX changes that preserve identity
-claude plugin install tars@claude-toolkit       # direct, no-flattery responses
+claude plugin install charter@claude-forge    # working agreement + boundaries
+claude plugin install craft@claude-forge      # UI/UX changes that preserve identity
+claude plugin install tars@claude-forge       # direct, no-flattery responses
 ```
 
 Each has its own entry point:
@@ -123,7 +123,7 @@ claude --plugin-dir ./output-styles
 
 `--plugin-dir` is repeatable, so you can load several at once.
 
-> **The `toolkit` bundle is the one exception.** It declares dependencies, and
+> **The `forge` bundle is the one exception.** It declares dependencies, and
 > Claude Code disables a plugin whose dependencies are not enabled. Under
 > `--plugin-dir` there is no marketplace to resolve them against, so the bundle
 > loads as nothing at all — silently. Load the three components directly
@@ -242,8 +242,8 @@ it costs per session, and the one next thing worth doing.
 | A command is not recognised | Plugins load at session start | Restart Claude Code |
 | TARS is selected, nothing changed | Output styles load at session start | `/clear` |
 | Style not in `/config` | Wrong name — `TARS` vs `tars:TARS` | Pick the one matching your install path |
-| Bundle installed, `/toolkit:setup` missing | A dependency is disabled, so the bundle is too | `claude plugin list`, enable the missing one |
-| `/toolkit:setup` will not run Charter for you | By design — `/charter:init` is user-invocation only | Type `/charter:init` yourself |
+| Bundle installed, `/forge:setup` missing | A dependency is disabled, so the bundle is too | `claude plugin list`, enable the missing one |
+| `/forge:setup` will not run Charter for you | By design — `/charter:init` is user-invocation only | Type `/charter:init` yourself |
 | Charter says a command is missing that exists | It only records commands that exit zero when probed | Run the probe yourself; if it fails, Charter is right |
 
 ---
@@ -256,16 +256,16 @@ Turn it on for an existing install with `./setup.sh --auto-update-only`.
 By hand:
 
 ```bash
-claude plugin marketplace update claude-toolkit
-claude plugin update toolkit@claude-toolkit
+claude plugin marketplace update claude-forge
+claude plugin update forge@claude-forge
 ```
 
 Or one at a time:
 
 ```bash
-claude plugin update charter@claude-toolkit
-claude plugin update craft@claude-toolkit
-claude plugin update tars@claude-toolkit
+claude plugin update charter@claude-forge
+claude plugin update craft@claude-forge
+claude plugin update tars@claude-forge
 ```
 
 Updates need a restart to take effect. Charter never rewrites permission rules
@@ -276,7 +276,7 @@ on an upgrade — a changed boundary always requires explicit confirmation.
 ## Uninstalling
 
 ```bash
-claude plugin uninstall toolkit@claude-toolkit
+claude plugin uninstall forge@claude-forge
 claude plugin prune          # drops the three dependencies nothing needs now
 ```
 

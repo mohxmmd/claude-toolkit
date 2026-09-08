@@ -100,10 +100,68 @@ C cfg-plugin wired > /dev/null
 A=$(find "$F/wired" -type f -newer "$F/wired/CLAUDE.md" 2>/dev/null | grep -v '/.git/' | wc -l | tr -d ' ')
 [ "$B" = "$A" ] && ok "companions writes nothing" || bad "companions touched the repo"
 
+echo "rule lint"
+LT=$(mktemp -d)
+mkdir -p "$LT/.claude"
+cat > "$LT/.claude/settings.json" <<'JSON'
+{ "permissions": {
+  "deny": ["Bash(git push --force *)", "Read(./**/*.pem)", "Read(./.env)"],
+  "ask":  ["Bash(php artisan migrate*)", "Bash(sh -c *)", "Bash(bash -c *)", "Bash(eval *)"],
+  "allow":["Bash(git status *)", "Bash(vendor/bin/pint --dirty*)"] } }
+JSON
+bash "$ROOT/scripts/lint-rules.sh" "$LT/.claude/settings.json" >/dev/null 2>&1 \
+  && ok "clean rules pass" || bad "clean rules pass" "linter rejected a correct file"
+# migrate* is a legitimate suffix wildcard, not the ls*/lsof form
+bash "$ROOT/scripts/lint-rules.sh" "$LT/.claude/settings.json" 2>&1 | grep -q "FAIL gotcha 3" \
+  && bad "no false positive on migrate*" "flagged a valid suffix wildcard" \
+  || ok "no false positive on migrate*"
+for CASE in 'Bash(ls*)|gotcha 3' 'Bash(* --version)|gotcha 17' 'Bash(git * main)|gotcha 4' \
+            'Bash(docker exec *)|gotcha 6' 'Write(secrets/**)|gotcha 8' 'Bash(command:rm *)|gotcha 13'; do
+  R="${CASE%%|*}"; G="${CASE##*|}"
+  printf '{"permissions":{"allow":["%s"]}}' "$R" > "$LT/one.json"
+  bash "$ROOT/scripts/lint-rules.sh" "$LT/one.json" 2>&1 | grep -q "FAIL $G" \
+    && ok "catches $R ($G)" || bad "catches $R" "$G did not fire"
+done
+echo '{"permissions":{"deny":["Read(./.env.*)"]}}' > "$LT/env.json"
+bash "$ROOT/scripts/lint-rules.sh" "$LT/env.json" 2>&1 | grep -q "FAIL secrets: Read" \
+  && ok "catches .env.* glob" || bad "catches .env.* glob" "did not fire"
+bash "$ROOT/scripts/lint-rules.sh" "$LT/env.json" >/dev/null 2>&1 \
+  && bad "exits non-zero on failure" "exited 0 with failures" || ok "exits non-zero on failure"
+rm -rf "$LT"
+
+echo "destructive scan"
+DT=$(mktemp -d)
+printf '{"scripts":{"test":"jest","db:reset":"x","build":"y"}}' > "$DT/package.json"
+printf 'test:\n\tgo test\ndb-wipe:\n\tpsql\n' > "$DT/Makefile"
+mkdir -p "$DT/app/Console/Commands"; touch "$DT/artisan"
+printf "protected \$signature = 'cms:restore {--force}';\nprotected \$signature = 'cms:sync';\n" \
+  > "$DT/app/Console/Commands/Cms.php"
+S=$(bash "$ROOT/scripts/survey.sh" "$DT")
+check "finds bespoke artisan restore"  "php artisan cms:restore"  "$S"
+check "finds npm db:reset"             "npm run db:reset"         "$S"
+check "finds make db-wipe"             "make db-wipe"             "$S"
+case "$S" in *"cms:sync"*) bad "no false positive on cms:sync";; *) ok "no false positive on cms:sync";; esac
+case "$S" in *"npm run build"*) bad "no false positive on build";; *) ok "no false positive on build";; esac
+rm -rf "$DT"
+
 echo "size gates"
+# Raised from 2500 to 3000 when policy.md gained tier 0 (sandbox), six more
+# matcher gotchas and the shell re-entry block. These live in references/, which
+# load on demand rather than every session, so the always-loaded cost is
+# unchanged. The gate that guards session cost is the per-SKILL.md word cap
+# below; this one only stops the plugin sprawling.
 N=$(find "$ROOT" -type f \( -name '*.md' -o -name '*.sh' -o -name '*.json' \) \
       -not -path '*/tests/fixtures/*' -not -path '*/.git/*' -exec cat {} + | wc -l | tr -d ' ')
-[ "$N" -le 2500 ] && ok "repo ${N} lines (<=2500)" || bad "repo ${N} lines (>2500)"
+[ "$N" -le 3000 ] && ok "repo ${N} lines (<=3000)" || bad "repo ${N} lines (>3000)"
+
+# What actually loads every session is the frontmatter `description` of each
+# skill, not the body. A SKILL.md body loads when the skill is invoked, and
+# init/ and status/ are `disable-model-invocation: true`, so they load only on
+# an explicit slash command. Cap the descriptions, which are the real
+# per-session cost, and let the bodies be as long as the task needs.
+D=$(awk '/^description:/{print}' "$ROOT"/skills/*/SKILL.md | wc -c | tr -d ' ')
+[ "$D" -le 1600 ] && ok "skill descriptions ${D} bytes (<=1600)" \
+                  || bad "skill descriptions ${D} bytes (>1600)"
 for f in "$ROOT"/skills/*/SKILL.md; do
   W=$(wc -w <"$f" | tr -d ' ')
   [ "$W" -le 2000 ] && ok "$(basename "$(dirname "$f")")/SKILL.md ${W} words (<=2000)" \
