@@ -46,4 +46,32 @@ for f in .claude/settings.local.json .claude/settings.json "$CFG/settings.json";
 done
 say tars.style "${STYLE:-none}"
 
+# ---------------------------------------------------------------- autoupdate
+# Both halves are needed on a native or VS Code install, where Claude Code's own
+# auto-updater is off and gates the plugin one. Reported separately so the
+# advice can name the missing half rather than guessing.
+MARKET="${2:-claude-toolkit}"
+have() { command -v "$1" >/dev/null 2>&1; }
+AU=no
+for f in "$CFG/settings.json" .claude/settings.json .claude/settings.local.json; do
+  [ -f "$f" ] || continue
+  if have jq; then
+    jq -e --arg m "$MARKET" \
+      '(.extraKnownMarketplaces // {})[$m].autoUpdate == true' "$f" >/dev/null 2>&1 && AU=yes
+  else
+    # A fixed sed range stops at the first "}", which closes the nested
+    # "source" object and hides the flag. Take a window instead.
+    grep -A20 "\"$MARKET\"" "$f" 2>/dev/null \
+      | grep -q '"autoUpdate"[[:space:]]*:[[:space:]]*true' && AU=yes
+  fi
+done
+say autoupdate.marketplace "$AU"
+
+FORCED=no
+for f in "$CFG/settings.json" .claude/settings.json .claude/settings.local.json; do
+  [ -f "$f" ] || continue
+  grep -q 'FORCE_AUTOUPDATE_PLUGINS' "$f" && FORCED=yes
+done
+say autoupdate.forced "$FORCED"
+
 echo "# end"

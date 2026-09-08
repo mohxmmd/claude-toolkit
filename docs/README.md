@@ -8,6 +8,7 @@ this directory holds the parts that are too long to sit there.
 | Page | What it covers |
 |---|---|
 | [SETUP.md](SETUP.md) | Installing and configuring everything from GitHub, from nothing |
+| [AUTO-UPDATE.md](AUTO-UPDATE.md) | Receiving new versions automatically, what it costs, and why a plugin cannot enable it itself |
 | [PUBLISHING.md](PUBLISHING.md) | Getting your own fork onto GitHub and installable by other people |
 
 ## Toolkit bundle

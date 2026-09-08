@@ -3,6 +3,14 @@
 **Installs Charter, Craft and TARS together, and wires them up in one pass.**
 
 ```bash
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit && ./setup.sh
+```
+
+That also enables auto-update, so you receive fixes without repeating it —
+see [docs/AUTO-UPDATE.md](../../docs/AUTO-UPDATE.md). Without the script:
+
+```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
 claude plugin install toolkit@claude-toolkit
 ```

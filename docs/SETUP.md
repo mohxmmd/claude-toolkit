@@ -31,13 +31,25 @@ macOS, Linux and WSL are all supported. Nothing here is platform-specific.
 ## The one-command install
 
 ```bash
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit && ./setup.sh
+```
+
+That installs **four** things — the `toolkit` bundle plus Charter, Craft and
+TARS, which the bundle declares as dependencies — and turns on **auto-update**
+so you receive fixes without repeating this.
+
+These tools are early and change often, so being stuck on the version you first
+installed means hitting bugs that are already fixed. The script backs up your
+settings first, says exactly what it wrote, and `--no-auto-update` opts out.
+Details and the trade-off: [AUTO-UPDATE.md](AUTO-UPDATE.md).
+
+Without the script, and without auto-update:
+
+```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
 claude plugin install toolkit@claude-toolkit
 ```
-
-The second command installs **four** things: the `toolkit` bundle plus Charter,
-Craft and TARS, which the bundle declares as dependencies. Claude Code resolves
-and enables all three for you.
 
 Restart Claude Code. Plugins are loaded at session start, so nothing you just
 installed exists in the session you typed it into.
@@ -238,7 +250,13 @@ it costs per session, and the one next thing worth doing.
 
 ## Updating
 
+If you installed with `./setup.sh`, this happens on its own at session start.
+Turn it on for an existing install with `./setup.sh --auto-update-only`.
+
+By hand:
+
 ```bash
+claude plugin marketplace update claude-toolkit
 claude plugin update toolkit@claude-toolkit
 ```
 

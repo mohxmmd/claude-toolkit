@@ -40,6 +40,8 @@ TOOLKIT   <repo>
 ✓/✗ Craft      .craft/config.md                    or: not run
 ✓/✗ TARS       <tars.style> in <tars.set_in>       or: not set
 
+⚠ Updates      off — you will stay on this version   (omit when on)
+
 Next: <one command>
 ```
 
@@ -50,6 +52,11 @@ Marking rules:
   gap Charter exists to close — mark it `⚠` and say "no enforced boundaries".
 - TARS is `✓` when `tars.style` is anything but `none`. Both `TARS` and
   `tars:TARS` are valid; they are the file and plugin installs respectively.
+- The Updates line appears **only when auto-update is off** — that is,
+  `autoupdate.marketplace: no`, or `autoupdate.forced: no` on a machine where
+  Claude Code's own auto-updater is disabled (native and VS Code installs). When
+  it is on, say nothing; a permanent row confirming a thing works is a row
+  nobody reads twice.
 
 ## The next command
 
@@ -61,10 +68,18 @@ Exactly one line, the first row that applies:
 | `charter.boundaries: no` | `/charter:init` — this repo has no enforced boundaries |
 | `craft.config: no` | `/craft:atlas` — reads the product, writes `.craft/config.md` |
 | `tars.style: none` | `/config` → Output style → `tars:TARS` → then `/clear` |
+| `autoupdate.marketplace: no` | `./setup.sh --auto-update-only` from a checkout — these tools change often |
 | Everything set | `nothing — you're set. /charter:status any time` |
 
 Charter comes before Craft. Charter's own setup offers to wire TARS and add the
 `/craft` routing line, so running it first means the other two need less.
+
+Auto-update comes last, because it is about future sessions rather than this
+one. Mention it once and do not argue for it: it means running new versions
+without reviewing them, which is a real trade the user gets to make. Never
+offer to enable it yourself — it lives in the user's own settings file, and a
+plugin quietly granting itself update rights is the exact thing that boundary
+exists to prevent.
 
 Print the block, print the next line, and stop. No commentary, no summary
 paragraph, no offer to do the work yourself.

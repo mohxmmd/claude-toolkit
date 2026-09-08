@@ -6,6 +6,18 @@ Each one fixes a different failure. None depends on the others. Install one, or
 all three at once.
 
 ```bash
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit && ./setup.sh
+```
+
+That installs all three and turns on **auto-update**, so you get fixes without
+doing this again. These are early-stage tools that change often, and a user
+stuck on the version they first installed is a user hitting bugs that are
+already fixed. `./setup.sh --no-auto-update` opts out.
+
+Prefer to do it by hand? Two commands, no auto-update:
+
+```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
 claude plugin install toolkit@claude-toolkit
 ```
@@ -111,15 +123,24 @@ written and no longer is.)*
 
 Full guide: **[docs/SETUP.md](docs/SETUP.md)**. The short version:
 
-### Everything
+### Everything, with auto-update
+
+```bash
+git clone https://github.com/mohxmmd/claude-toolkit.git
+cd claude-toolkit && ./setup.sh
+```
+
+Restart Claude Code, then `/charter:init` in the repository you want set up.
+`/toolkit:setup` tells you where you are if you lose the thread.
+
+Already installed and just want auto-update on? `./setup.sh --auto-update-only`.
+
+### Everything, without auto-update
 
 ```bash
 claude plugin marketplace add mohxmmd/claude-toolkit
 claude plugin install toolkit@claude-toolkit
 ```
-
-Restart Claude Code, then `/charter:init` in the repository you want set up.
-`/toolkit:setup` tells you where you are if you lose the thread.
 
 ### One thing
 
@@ -208,6 +229,7 @@ Worked sequences are in [examples/](examples/README.md).
 | `skills/charter/` | The Charter plugin: skills, references, scripts, templates, tests |
 | `output-styles/` | The TARS output style, its manifest, changelog and contributing guide |
 | `bundles/toolkit/` | The bundle plugin: a manifest of dependencies and `/toolkit:setup` |
+| `setup.sh` | The toolkit installer. Installs all three and enables auto-update |
 | `install.sh` | The TARS file installer. Copies `output-styles/TARS.md` into `~/.claude/` |
 | `docs/` | Long-form documentation, plus the setup and publishing guides |
 | `examples/` | Worked command sequences |

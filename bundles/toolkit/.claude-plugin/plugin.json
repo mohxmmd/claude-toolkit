@@ -1,6 +1,6 @@
 {
   "name": "toolkit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Installs Charter, Craft and TARS together and wires them up in one pass. Ships no behaviour of its own beyond a single setup command.",
   "author": {
     "name": "Mohammed"

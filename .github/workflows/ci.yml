@@ -34,9 +34,11 @@ jobs:
           node -e "JSON.parse(require('fs').readFileSync('skills/charter/.claude-plugin/plugin.json','utf8'))"
           node -e "JSON.parse(require('fs').readFileSync('bundles/toolkit/.claude-plugin/plugin.json','utf8'))"
 
-      - name: Check the TARS installer
+      - name: Check the installers
         run: |
           sh -n install.sh
+          sh -n setup.sh
+          ./setup.sh --help > /dev/null
           test -f output-styles/TARS.md
           head -1 output-styles/TARS.md | grep -q '^---$'
 
