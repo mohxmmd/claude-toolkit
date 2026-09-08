@@ -5,10 +5,11 @@
 TARS is a Claude Code output style: one Markdown file that changes how Claude
 reasons with you and how it reports back.
 
-**Answer first, in a line or two. Details second, only the ones that change what
-you do next. Nothing else.** Inside that shape it commits to a verdict, names
-the concrete alternative, separates what it *verified* from what it merely
-*wrote*, and stays in the scope you asked for.
+**The result comes first. The shape and length of what follows are chosen from
+the task, not from a template.** A port number gets one word. A migration gets a
+summary you could act on without reading further. Inside that, it commits to a
+verdict, names the concrete alternative, separates what it *verified* from what
+it merely *wrote*, and stays in the scope you asked for.
 
 No dependencies. Install in under a minute. Remove by deleting one file.
 
@@ -54,6 +55,27 @@ the code, the threshold at which your original idea becomes correct, and a
 verdict instead of a request for permission.
 
 TARS is not mainly shorter than the default. It is denser.
+
+### What 2.0 added
+
+The default style treats every turn as a fresh request. TARS reads the
+conversation. After picking the simplest option three times in a row:
+
+> **You:** Simplest again.
+>
+> **TARS:** **In-process token bucket, per-IP.** Locking in "single server, no
+> extra infra" as the default from here, so I won't re-open the fork next time.
+
+Two turns later, on a new subsystem, it applied that silently and then said
+where the preference stops working:
+
+> **TARS:** **"Simplest" can't carry this one alone.** A notification system's
+> shape is set by two things I don't know yet: which channels, and whether
+> delivery needs to be real-time. [...] Here's a concrete default consistent
+> with your single-server, no-infra choices, plus the two forks that would move
+> it.
+
+That is the behavior you notice most when you switch back.
 
 These are real transcripts, not mockups. More in [docs/tars/examples.md](../docs/tars/examples.md),
 including a case where the default style already does fine.
@@ -126,16 +148,20 @@ so any file it replaced is still there as `TARS.md.backup-<timestamp>`.
 
 ## What actually changes
 
-TARS adds six rule groups to Claude's system prompt.
+TARS replaces Claude's default reporting instincts with ten rule groups.
 
 | Group | What it governs |
 | --- | --- |
-| **Shape** | Answer in one or two lines, then only details that change what you do. Ten-line default ceiling. |
-| **Judgment** | Disagree with a concrete reason. Check a claim before confirming it. Raise risks and unknowns only when they change the decision. |
-| **Engineering** | Simplest solution that holds. Match the architecture already there. No abstraction for a problem that doesn't exist yet. |
+| **Lead with the result** | The first line is the verdict, the root cause, the number, or an honest "I cannot confirm that". Evidence comes after. |
+| **Length is a decision** | Small, medium and large tiers instead of one shape. A port number gets one word; a migration gets a summary that stands on its own. |
+| **Shapes, not templates** | Eight task modes (debug, implement, decide, review, refactor, UI, plan, blocked), described as the parts that matter rather than a form to fill in. |
 | **Verification** | "Implemented" and "verified" are different words. Never claim a command ran, a test passed, or a file changed unless it did. |
-| **Scope** | Solve the asked problem, nothing bigger. Out-of-scope problems get reported, not fixed, unless they block the task. |
-| **Voice** | Plain English, bullets over paragraphs, `file:line` over prose. Blunt, never hostile. |
+| **Judgment** | Disagree with a concrete reason. Recommend instead of listing options. Ask only when the answer changes what gets built, and bring a default with the question. |
+| **Scope** | Solve the asked problem. Out-of-scope findings get reported, not fixed. Scope growth gets named out loud. |
+| **Checkpoints** | On substantial work it stops twice: once on the fork before the bulk of the build, once when there is something to judge. Numbered options with a default, so "go" is a valid answer. Never on small tasks. |
+| **Named moves** | `Assumption check`, `Decision debt`, `TARS Insight`. A shared vocabulary, rated for frequency: most responses use none of it. |
+| **Coaching** | `Prompt signal:` when missing information actually changed the work. It decays as your requests get more precise. |
+| **Reading the user** | Infer working preferences from the conversation, state one once when it settles a default, then apply it silently. |
 
 It keeps Claude Code's built-in software engineering instructions
 (`keep-coding-instructions: true`), so this is a change of judgment and tone,
@@ -174,9 +200,10 @@ blunt about the work and never about you.
 been burned by a confident "all tests pass", or you find the default tone
 padded.
 
-**Bad fit:** you are learning and want the reasoning spelled out. Use the
-built-in **Explanatory** or **Learning** styles instead. TARS optimizes for
-people who already know what they are looking at.
+**Bad fit:** you want every step narrated as it happens. Use the built-in
+**Explanatory** or **Learning** styles for that. TARS does teach, but only when
+the work just produced a lesson, and it stops once your requests get precise.
+It optimizes for people who already know what they are looking at.
 
 ---
 
@@ -196,9 +223,19 @@ rules.
 
 - **It applies to the main conversation only.** Subagents run their own system
   prompt and ignore output styles.
-- **It costs tokens.** About 2.9 KB of system prompt, roughly 700 to 800 tokens
-  (approximate, not measured with a tokenizer). Prompt caching absorbs most of
-  it after the first request in a session.
+- **It costs tokens.** About 10.6 KB of system prompt, roughly 2,600 tokens
+  (approximate, not measured with a tokenizer). That is three times v1.1, which
+  bought the response modes, the named vocabulary and the coaching. Prompt
+  caching absorbs most of it after the first request in a session.
+- **The "no em dashes" rule is the weakest one in the file.** v1.1 prohibited
+  them and they appeared 18 times in a 17-turn evaluation. 2.0 names a
+  replacement instead, which held for four turns. Small sample. Do not rely on
+  it.
+- **On large open-ended questions it is closer to the default than you would
+  hope.** On a migration question TARS wrote 657 words to the default's 635.
+  The difference is that TARS opens with the recommendation and names the hard
+  part first. Real, but structural. The gap is widest on pushback and on small
+  tasks, not on essays.
 - **It is a prompt, not a guarantee.** It shifts defaults. It does not make
   fabrication impossible.
 - **Some of what it asks for, Claude already does.** Recent Claude Code

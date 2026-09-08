@@ -28,12 +28,17 @@ filename. Two files with the same `name:` will collide.
 | Section | Controls | Edit it when |
 | --- | --- | --- |
 | Header dials | Flavor only. No mechanical effect. | You want a different self-description |
-| **Shape of every reply** | Response structure and length budget | Answers are too long, too short, or bury the point |
-| **Judgment** | Whether and how Claude disagrees with you | Pushback is too frequent or too rare |
-| **Engineering** | Solution shape, complexity tolerance, architecture fit | Your codebase has different norms |
+| **Lead with the result** | What the first line contains | Answers bury the point |
+| **Length is a decision** | The small / medium / large budget | Answers are too long or too clipped |
+| **Shapes, not templates** | Which parts appear for which kind of task | A task type gets the wrong treatment |
 | **Verification** | Claims about what was run, tested, or checked | Almost never. This is the load-bearing section |
+| **Judgment** | Whether and how Claude disagrees, and when it asks | Pushback is too frequent or too rare |
 | **Scope** | What Claude touches beyond what you asked | It does too much, or too little |
-| **Voice** | Length, formatting, tone, humor | Output is too terse or too chatty |
+| **Checkpoints** | The two mid-work reviews and their options | It interrupts too much, or not enough |
+| **Named moves** | `Assumption check`, `Decision debt`, `TARS Insight` | You want the vocabulary gone, or used more |
+| **Coaching** | `Prompt signal:` feedback on your requests | You never want prompt feedback |
+| **Reading the user** | Inferring your preferences from the conversation | It feels presumptuous, or too passive |
+| **Voice** | Formatting, tone, humor, em dashes | Output is too terse or too chatty |
 
 Frontmatter:
 
@@ -65,23 +70,20 @@ Add to **Judgment**:
 
 ### Make it shorter still
 
-Brevity is already the default. To push further, edit the ceiling in **Shape of
-every reply**:
+Brevity is already the default. To push further, tighten the medium tier in
+**Length is a decision**:
 
 ```markdown
-- Default ceiling: 5 lines. Go past it only for a real list (findings, steps) or when asked for depth.
+**Medium.** A normal fix, review, or feature. Verdict, what changed, why, what you verified. Stay under six lines.
 ```
 
-And remove from **Scope**:
-
-```markdown
-- Extra ideas: one line at the end, or nothing.
-```
+And delete the whole **Named moves** and **Coaching** sections. They are the two
+places 2.0 spends words that 1.1 did not.
 
 Do not remove this line, whatever ceiling you set:
 
 ```markdown
-- Brevity never costs a correction. A false premise in the question is the first line of the answer.
+- Brevity never costs a correction. A false premise in the question is the first line of the answer, before the task it was attached to.
 ```
 
 It exists because an early build without it went quiet: asked to confirm a false
@@ -90,10 +92,11 @@ you are paying for.
 
 ### Make it longer
 
-If answers feel clipped, raise the ceiling and restore the counterweight:
+If answers feel clipped, raise the medium budget and restore the v1.0
+counterweight:
 
 ```markdown
-- Default ceiling: 20 lines.
+**Medium.** ... Stay near twenty lines.
 - Terse is not cryptic. Include what the reader needs to decide.
 ```
 
@@ -105,12 +108,13 @@ reason it sprawled.
 The header dial is decorative. The behavior lives in **Voice**:
 
 ```markdown
-- Dry humor, sparingly. Never in an error, a risk, or a security finding.
+- Dry humor, occasional, never at the cost of clarity, and never inside an error, a risk, a security finding, or a failure.
 ```
 
-- **No humor:** delete the line.
-- **More humor:** replace `sparingly` with `where it lands`. Keep the second
-  sentence. Jokes in a security finding are how a finding gets ignored.
+- **No humor:** delete the line and the example blockquote under it.
+- **More humor:** replace `occasional` with `where it lands`. Keep everything
+  after the first comma. Jokes in a security finding are how a finding gets
+  ignored.
 
 ### Restore chat-first behavior
 
@@ -127,10 +131,10 @@ Expect to say "go ahead and edit it" more often. That is the trade.
 
 ### Make it ask more (or less)
 
-The relevant line in **Scope** is:
+The relevant line is now in **Judgment**:
 
 ```markdown
-- Ask only when the answer changes what you build. Otherwise assume, state the assumption, continue.
+- Ask only when the answer changes what gets built, and bring a default with the question.
 ```
 
 - **Ask more:** replace with
@@ -140,6 +144,46 @@ The relevant line in **Scope** is:
 
 Pairs well with Claude Code's permission modes. If you set "ask less", run in a
 mode where you still approve writes.
+
+### Turn off the 2.0 additions
+
+Each is one section, and deleting it removes the behavior cleanly:
+
+- **No prompt feedback ever:** delete **Coaching**. You keep the engineering
+  judgment and lose `Prompt signal:`.
+- **No named vocabulary:** delete **Named moves**. `Assumption check` and
+  `Decision debt` stop appearing by name; TARS still says it has not verified
+  something, just without the label.
+- **Never comment on how you work:** delete **Reading the user**. It will still
+  adapt to repeated preferences, it just stops saying so out loud.
+
+Removing all three puts you close to v1.1 behavior at roughly v1.1 cost.
+
+### Change how often it checks in
+
+**Checkpoints** sets the budget at two per piece of substantial work.
+
+- **Never interrupt:** delete the section. TARS states its assumptions in the
+  final report instead, which is v1.1 behavior.
+- **One checkpoint:** delete the `Second, once there is something to judge`
+  paragraph and its example. You keep the direction check and lose the review.
+- **More:** change `Two is the budget` to `Check in at each natural seam`.
+  Expect it to feel like supervision on anything under a day of work.
+
+The rule that keeps it usable is `Never on a small task`. If you delete one
+line from this section, do not make it that one.
+
+### Make it notice more, or less
+
+In **Reading the user**, the frequency is set by:
+
+```markdown
+Adapt silently. Say it aloud once when it settles a default, then apply it quietly.
+```
+
+- **Less:** change to `Adapt silently. Never say so.`
+- **More:** change to `Say it aloud whenever a pattern becomes actionable.`
+  Expect it to feel presumptuous within a long session.
 
 ### Add your team's engineering rules
 
@@ -170,9 +214,12 @@ For rules that are about *your codebase* rather than *how Claude should think*,
 - **The header dials.** They are flavor. Editing `Humor 60` to `Humor 20` does
   nothing on its own. Edit the Voice line.
 - **`keep-coding-instructions`.** See above.
-- **Length, for token reasons.** The whole file is roughly 700 to 800 tokens and
-  is cached after the first request in a session. Cutting rules to save tokens
-  trades a real behavior for a rounding error.
+- **Length, for token reasons.** The whole file is roughly 2,600 tokens and is
+  cached after the first request in a session. Cutting rules to save tokens
+  trades a real behavior for a rounding error. If you genuinely need it smaller,
+  delete whole sections (**Coaching**, **Named moves**, **Reading the user**)
+  rather than thinning every section, which leaves you with rules too vague to
+  fire.
 
 ---
 
@@ -186,6 +233,9 @@ Prompts that reliably expose whether a change took effect:
 | Scope | Ask for a small change in a file that obviously needs a refactor |
 | Verification | Ask it to fix something, then ask "is it working now?" |
 | Voice | Ask any simple question and count the lines |
+| Length adaptation | Ask a port-number question, then a migration question, same session |
+| No ceremony | Ask four small questions in a row and check for headings or named moves |
+| Coaching decay | Two vague requests, then two precise ones. `Prompt signal:` should stop |
 
 Run each before and after. If you cannot tell the difference, the rule is not
 doing anything and should come back out.
