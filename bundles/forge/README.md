@@ -28,6 +28,7 @@ Restart Claude Code, then in the repository you want set up:
 /charter:init       the actual setup — two to five questions, about a minute
 /forge:setup      where am I, and what should I type next
 /forge:doctor     what is stale, duplicated or contradictory across my AI docs
+/forge:update     am I current, and update if not
 /forge:uninstall  remove all of it, from this machine and this repository
 ```
 
@@ -95,6 +96,27 @@ declaring these dependencies would mean copying `skills/charter/` out of this
 repository produced a plugin that silently did nothing.
 
 Full reasoning: [docs/forge/bundle.md](../../docs/forge/bundle.md).
+
+---
+
+## Updating
+
+```
+/forge:update
+```
+
+Prints installed against published, per plugin, and updates what is behind.
+`./update.sh --check` is the same from a shell.
+
+To have it happen by itself, use Claude Code's own plugin auto-update, which
+runs at every session start and which `setup.sh` turns on by default:
+
+```bash
+./setup.sh --auto-update-only
+```
+
+`./update.sh --weekly` is for the case where that is deliberately off:
+[docs/AUTO-UPDATE.md](../../docs/AUTO-UPDATE.md).
 
 ---
 

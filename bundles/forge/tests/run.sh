@@ -82,6 +82,66 @@ N=$(mktemp -d)
 bash "$D" "$N" >/dev/null 2>&1 && ok "runs outside a git repo" || bad "runs outside a git repo" "non-zero exit"
 
 
+# ------------------------------------------------------------------- update
+U2="$ROOT/scripts/update.sh"
+sh -n "$U2" && ok "update.sh parses" || bad "update.sh parses" "syntax error"
+"$U2" --help >/dev/null 2>&1 && ok "update.sh --help exits 0" || bad "update.sh --help" "non-zero exit"
+
+# The weekly check writes a hook into settings.json. What must survive that is
+# somebody else's SessionStart hook sitting in the same array.
+W=$(mktemp -d)
+cat > "$W/settings.json" <<'JSON'
+{
+  "theme": "dark",
+  "hooks": {
+    "SessionStart": [ { "hooks": [ { "type": "command", "command": "/not/ours.sh" } ] } ],
+    "PostToolUse": [ { "matcher": "Write", "hooks": [ { "type": "command", "command": "fmt" } ] } ]
+  }
+}
+JSON
+
+echo "update: weekly on"
+OW=$(CLAUDE_CONFIG_DIR="$W" sh "$U2" --weekly --yes 2>&1)
+check "installs the hook script"   "weekly-update.sh"        "$OW"
+[ -x "$W/forge/weekly-update.sh" ] && ok "hook script is executable" || bad "hook script is executable" "missing or not +x"
+grep -q 'weekly-update.sh' "$W/settings.json" && ok "hook registered in settings" || bad "hook registered in settings" "not found"
+grep -q '"async"' "$W/settings.json" && ok "hook is async" || bad "hook is async" "async flag missing"
+grep -q '/not/ours.sh' "$W/settings.json" && ok "foreign hook survives install" || bad "foreign hook survives install" "removed"
+grep -q '"PostToolUse"' "$W/settings.json" && ok "other events untouched" || bad "other events untouched" "removed"
+
+# A stub claude on PATH, so the gate can be tested without the real CLI and
+# without touching a real plugin install.
+mkdir -p "$W/bin"
+cat > "$W/bin/claude" <<'STUB'
+#!/bin/sh
+echo "stub claude $*"
+exit 0
+STUB
+chmod +x "$W/bin/claude"
+
+echo "update: the seven-day gate"
+PATH="$W/bin:$PATH" CLAUDE_CONFIG_DIR="$W" sh "$W/forge/weekly-update.sh"
+L1=$(wc -l < "$W/forge/update.log" 2>/dev/null || echo 0)
+[ "$L1" -gt 0 ] && ok "first run checks" || bad "first run checks" "log is empty"
+PATH="$W/bin:$PATH" CLAUDE_CONFIG_DIR="$W" sh "$W/forge/weekly-update.sh"
+L2=$(wc -l < "$W/forge/update.log" 2>/dev/null || echo 0)
+[ "$L1" = "$L2" ] && ok "second run inside 7 days does nothing" || bad "second run does nothing" "log grew"
+touch -d '8 days ago' "$W/forge/last-update-check" 2>/dev/null || touch -t "$(date -v-8d +%Y%m%d0000 2>/dev/null || echo 200001010000)" "$W/forge/last-update-check"
+PATH="$W/bin:$PATH" CLAUDE_CONFIG_DIR="$W" sh "$W/forge/weekly-update.sh"
+L3=$(wc -l < "$W/forge/update.log" 2>/dev/null || echo 0)
+[ "$L3" -gt "$L2" ] && ok "run after 8 days checks again" || bad "run after 8 days checks again" "log did not grow"
+[ -d "$W/forge/update.lock" ] && bad "lock is released" "still present" || ok "lock is released"
+
+echo "update: weekly off"
+OW=$(CLAUDE_CONFIG_DIR="$W" sh "$U2" --no-weekly 2>&1)
+grep -q 'weekly-update.sh' "$W/settings.json" && bad "hook deregistered" "still in settings" || ok "hook deregistered"
+[ -e "$W/forge/weekly-update.sh" ] && bad "hook script removed" "still present" || ok "hook script removed"
+grep -q '/not/ours.sh' "$W/settings.json" && ok "foreign hook survives removal" || bad "foreign hook survives removal" "removed"
+[ -f "$W/forge/update.log" ] && ok "log is kept" || bad "log is kept" "deleted"
+
+rm -rf "$W"
+
+
 # ---------------------------------------------------------------- uninstall
 U="$ROOT/scripts/uninstall.sh"
 sh -n "$U" && ok "uninstall.sh parses" || bad "uninstall.sh parses" "syntax error"

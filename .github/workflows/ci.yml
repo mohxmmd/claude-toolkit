@@ -40,8 +40,11 @@ jobs:
           sh -n setup.sh
           sh -n uninstall.sh
           sh -n bundles/forge/scripts/uninstall.sh
+          sh -n update.sh
+          sh -n bundles/forge/scripts/update.sh
           ./setup.sh --help > /dev/null
           ./uninstall.sh --help > /dev/null
+          ./update.sh --help > /dev/null
           test -f output-styles/TARS.md
           head -1 output-styles/TARS.md | grep -q '^---$'
 
@@ -49,7 +52,7 @@ jobs:
         shell: pwsh
         run: |
           $bad = 0
-          foreach ($f in @('install.ps1', 'setup.ps1', 'uninstall.ps1')) {
+          foreach ($f in @('install.ps1', 'setup.ps1', 'uninstall.ps1', 'update.ps1')) {
             $errors = $null
             [void][System.Management.Automation.Language.Parser]::ParseFile(
               (Resolve-Path $f), [ref]$null, [ref]$errors)

@@ -8,6 +8,7 @@ allowed-tools:
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/survey.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh *)
+  - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/record-hash.sh *)
 ---
 
 # Charter: check
@@ -109,6 +110,15 @@ PROMOTE
 Apply?  [a]ll  [d]rift only  [p]romotions only  [e]dit  [n]one
 ```
 
-After writing, update `charter.json` with the new `head` and `manifest_hash`. Then stop.
+After writing, re-sync the state file by running:
+
+```
+${CLAUDE_PLUGIN_ROOT}/scripts/record-hash.sh .
+```
+
+That is the only supported way to update `head` and `manifest_hash`. Never patch
+`charter.json` with an inline `python3 -c`, `node -e`, `jq` or `sed` call: an improvised
+interpreter command cannot be covered by `allowed-tools`, so it prompts the user on every
+run. Then stop.
 
 If there are no findings, say so in one line and stop. Do not manufacture work.

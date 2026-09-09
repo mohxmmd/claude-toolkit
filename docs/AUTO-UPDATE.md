@@ -111,6 +111,59 @@ Two caveats:
 
 ---
 
+## The weekly check, for people who do not want per-session updates
+
+`autoUpdate` is the right mechanism for staying current, and it is the one this
+page recommends. The weekly check is for a different preference: auto-update
+deliberately off, but not wanting to fall six versions behind unnoticed.
+
+```bash
+./update.sh --weekly      # on
+./update.sh --no-weekly   # off
+```
+
+```powershell
+.\update.ps1 -Weekly
+.\update.ps1 -NoWeekly
+```
+
+It installs two things:
+
+| | |
+|---|---|
+| `~/.claude/forge/weekly-update.sh` | A small script. Nothing else calls it. |
+| A `SessionStart` hook in `settings.json` | Marked `async`, so it never delays the start of a session |
+
+The script exits in milliseconds on six days out of seven. On the seventh it
+refreshes the marketplace, updates the four plugins in the background, and
+appends the result to `~/.claude/forge/update.log`. A lock stops two checks
+overlapping, and the stamp is written **before** the work, so a failing check
+waits for the next week instead of retrying at every session start.
+
+Because the work is backgrounded, an update it fetches usually applies from the
+session after next.
+
+**Running both is redundant**, and gives two mechanisms the same job on the same
+plugin directory. `--weekly` says so and asks before installing over a live
+`autoUpdate`.
+
+Removing it: `--no-weekly`, or `/forge:uninstall`, which takes the hook, the
+script and the stamp and leaves any other `SessionStart` hook untouched.
+
+---
+
+## Checking where you stand
+
+```bash
+./update.sh --check
+```
+
+Refreshes the marketplace and prints installed against available, per plugin.
+It changes nothing. `/forge:update` is the same thing from inside a session,
+and offers to install what is behind.
+
+---
+
 ## Turning it off
 
 Delete `autoUpdate` from the marketplace entry in `~/.claude/settings.json`, or

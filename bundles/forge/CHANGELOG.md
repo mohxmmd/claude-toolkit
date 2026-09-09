@@ -13,6 +13,24 @@ pinned range no longer resolves.
 
 ### Added
 
+- **`/forge:update`** — prints installed against published for all four plugins
+  and updates what is behind. `--check` reports and changes nothing.
+- **`update.sh` and `update.ps1`** at the repository root, plus
+  `scripts/update.sh` inside the bundle so the command and the shell script are
+  the same code. Versions are read from the plugin database and the marketplace
+  cache, so the comparison needs no network beyond one marketplace refresh.
+- **An optional weekly check**, `--weekly` / `--no-weekly`. It writes
+  `~/.claude/forge/weekly-update.sh` and one `async` `SessionStart` hook, exits
+  in milliseconds on six days out of seven, and updates in the background on
+  the seventh. It is **not** the recommended way to stay current: Claude Code's
+  own `autoUpdate` runs at every session start and needs no hook, so `--weekly`
+  says so and asks before installing over a live `autoUpdate`.
+- `/forge:uninstall` and both uninstall scripts now remove the weekly hook,
+  `~/.claude/forge/`, and the `SessionStart` entry, leaving any other hook in
+  that array untouched.
+- 15 more assertions in `tests/run.sh` covering the seven-day gate, the lock,
+  and that a foreign `SessionStart` hook survives both install and removal.
+
 - **`/forge:uninstall`** — the one command that removes all of it: the four
   plugins, the marketplace, the settings the installer wrote, the TARS style
   file, and everything Charter and Craft wrote into the repository it is run

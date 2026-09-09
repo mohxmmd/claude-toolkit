@@ -278,6 +278,10 @@ FORGE
 
   /forge:setup                      Where am I, what should I type next
   /forge:doctor                     What is stale or contradictory in my docs
+  /forge:update                     Version check, and update if behind
+    /forge:update --check           Report versions only
+    /forge:update --weekly          Turn on the weekly background check
+    /forge:update --no-weekly       Turn it off
   /forge:uninstall                  Remove all of it (section 10)
 
 TARS
@@ -286,10 +290,11 @@ TARS
 
 A NOTE ON WHY THESE NEED TYPING
 
-  /charter:init, /charter:status, /charter:check, /forge:setup, /forge:doctor
-  and /forge:uninstall only run when a person types them. Claude cannot decide
-  to fire them. They write files, ask questions, or delete things, and none of
-  that should happen because a model inferred it might be wanted.
+  /charter:init, /charter:status, /charter:check, /forge:setup, /forge:doctor,
+  /forge:update and /forge:uninstall only run when a person types them. Claude
+  cannot decide to fire them. They write files, ask questions, or delete
+  things, and none of that should happen because a model inferred it might be
+  wanted.
 
 
 ================================================================================
@@ -306,6 +311,11 @@ ON YOUR MACHINE (once, at install)
   ~/.claude/output-styles/TARS.md
       Only if you used ./install.sh. The plugin install does not put a file
       here.
+
+  ~/.claude/forge/
+      Only if you turned on the weekly check (section 9): the hook script, the
+      stamp that dates the last check, and the log. Plus a SessionStart hook in
+      settings.json pointing at it.
 
   If CLAUDE_CONFIG_DIR is set, all of the above lives there instead.
 
@@ -347,27 +357,122 @@ FOUR WORDS THAT MEAN DIFFERENT THINGS
 9. UPDATING
 ================================================================================
 
-IF AUTO-UPDATE IS ON (the setup.sh default)
+THE SHORT ANSWER
 
-  Nothing to do. New versions arrive at session start.
+  Check what you have, and update if you are behind:
 
-IF IT IS OFF
+    /forge:update           inside Claude Code
+    ./update.sh --check     see the versions, change nothing
+    ./update.sh             update
+
+  PowerShell:
+
+    .\update.ps1 -Check
+    .\update.ps1
+
+  Restart Claude Code afterwards. Plugins load at session start, so a new
+  version applies to your next session, not the one you typed the command in.
+
+  What --check prints:
+
+    Versions
+      charter    0.2.0    up to date
+      craft      0.2.0    -> 0.3.0
+      forge      0.2.0    up to date
+      tars       1.2.0    up to date
+
+WANT IT TO HAPPEN BY ITSELF? USE THE BUILT-IN
+
+  Claude Code already has plugin auto-update, and it runs at EVERY session
+  start. That is more often than any schedule you would set up by hand, it
+  needs no script, and it is one command:
+
+    ./setup.sh --auto-update-only          (PowerShell: -AutoUpdateOnly)
+
+  That is the recommended answer for "keep these updated automatically".
+  setup.sh turns it on by default, so if you installed with setup.sh and did
+  not pass --no-auto-update, it is already on and there is nothing to do.
+
+  It writes two keys into your settings:
+
+    extraKnownMarketplaces.claude-forge.autoUpdate = true
+        Refresh this marketplace and its plugins at session start.
+
+    env.FORCE_AUTOUPDATE_PLUGINS = "1"
+        Lets plugins update even when Claude Code's own auto-updater is off,
+        which is the default on native and VS Code installs. Plugins only. It
+        never updates Claude Code itself.
+
+  The honest cost: you run new versions without reviewing them first. For these
+  tools that trade is usually worth it, because they change often and a stuck
+  version means hitting bugs that are already fixed. Weigh it differently for a
+  marketplace you do not control.
+
+  Check it is working:
+
+    claude plugin list
+    grep -i autoupdate ~/.claude/debug/$(ls -t ~/.claude/debug | head -1)
+
+THE WEEKLY CHECK, FOR PEOPLE WHO DO NOT WANT PER-SESSION UPDATES
+
+  ./update.sh --weekly        turn it on
+  ./update.sh --no-weekly     turn it off
+
+  PowerShell: .\update.ps1 -Weekly  /  -NoWeekly
+
+  Use this only if you deliberately keep auto-update off but would still rather
+  not fall six versions behind without noticing. If auto-update is already on,
+  the script tells you the weekly check is redundant and asks before installing
+  a second mechanism that does the same job.
+
+  What it installs:
+
+    ~/.claude/forge/weekly-update.sh    a small script, nothing else calls it
+    a SessionStart hook in settings.json, marked "async" so it never delays
+    the start of a session
+
+  How it behaves:
+
+    Six days out of seven      exits in milliseconds, does nothing
+    On the seventh             refreshes the marketplace, updates the four
+                               plugins in the background, appends the result to
+                               ~/.claude/forge/update.log
+    While one check is running a lock stops a second from starting
+    If a check fails           it does not retry every session; it waits for
+                               the next week and the failure is in the log
+
+  Because the work happens in the background, an update it fetches usually
+  applies from the session after next. Read the log if you want to know what
+  happened:
+
+    tail ~/.claude/forge/update.log
+
+  Both --no-weekly and /forge:uninstall remove the hook, the script and the
+  stamp file, and leave any other SessionStart hook you have exactly as it was.
+
+UPDATING BY HAND
 
   claude plugin marketplace update claude-forge
   claude plugin update forge@claude-forge
 
-  Or update one component:
+  Or one component at a time:
 
   claude plugin update craft@claude-forge
 
-TURN AUTO-UPDATE ON LATER
-
-  ./setup.sh --auto-update-only          (PowerShell: -AutoUpdateOnly)
-
-TURN IT OFF WITHOUT UNINSTALLING ANYTHING
+TURNING AUTO-UPDATE OFF WITHOUT UNINSTALLING ANYTHING
 
   Delete the "autoUpdate" line from extraKnownMarketplaces in your
-  settings.json. That is the whole undo.
+  settings.json, or set it to false. That is the whole undo.
+
+FOR MAINTAINERS: UPDATES DO NOTHING UNLESS YOU RELEASE PROPERLY
+
+  The plugin cache is keyed by version. Pushing to main without bumping a
+  version ships nothing at all: "claude plugin update" replies "already at the
+  latest version" and every user keeps the old code.
+
+  Bump the version in BOTH plugin.json and .claude-plugin/marketplace.json for
+  every change users should receive, documentation fixes included. CI checks
+  that the two agree. See docs/PUBLISHING.md.
 
 
 ================================================================================
@@ -401,6 +506,9 @@ WHAT IT REMOVES, ON THIS MACHINE
   The output style setting        outputStyle, only when it is set to TARS
   The style file                  ~/.claude/output-styles/TARS.md, if
                                   install.sh put it there
+  The weekly check                ~/.claude/forge/ and its SessionStart hook,
+                                  if you turned it on. Other hooks are left
+                                  exactly as they were.
 
 WHAT IT REMOVES, IN THE REPOSITORY YOU RUN IT FROM
 
@@ -527,6 +635,16 @@ BY HAND, IF YOU PREFER
 "I interrupted an uninstall halfway."
   Re-run it. It finds what is left and removes only that.
 
+"Am I running the latest version?"
+  ./update.sh --check, or /forge:update. It refreshes the marketplace first,
+  so the comparison is against what is actually published.
+
+"I turned on the weekly check and nothing has happened."
+  By design: it does nothing for the first seven days. Check the stamp with
+  ls -l ~/.claude/forge/last-update-check, and the log with
+  tail ~/.claude/forge/update.log. A hook also needs a Claude Code restart
+  before it runs at all.
+
 "I want everything back after uninstalling."
   Copy .forge-backup-<timestamp>/ back over the project, restore any
   <file>.backup-<timestamp> settings files, and run ./setup.sh again.
@@ -541,6 +659,7 @@ IN THIS REPOSITORY
   setup.sh / setup.ps1         Installs all three, enables auto-update
   install.sh / install.ps1     Installs TARS as a plain file
   uninstall.sh / uninstall.ps1 Removes everything, or part of it
+  update.sh / update.ps1       Version check, update, weekly check on/off
   skills/craft/                The Craft plugin
   skills/charter/              The Charter plugin
   output-styles/               The TARS output style

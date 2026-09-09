@@ -24,6 +24,8 @@ MARKET="${FORGE_MARKET:-claude-forge}"
 CFG_DIR="${CLAUDE_CONFIG_DIR:-$HOME/.claude}"
 SETTINGS="$CFG_DIR/settings.json"
 STYLE_FILE="$CFG_DIR/output-styles/TARS.md"
+STATE_DIR="$CFG_DIR/forge"
+export FORGE_STATE_DIR="$STATE_DIR"
 PROJECT="$PWD"
 MANIFEST=".forge/manifest.tsv"
 TAB=$(printf '\t')
@@ -59,6 +61,7 @@ Machine:
                  enabledPlugins entries ending in @claude-forge
                  outputStyle, only when it is set to TARS
   style file     ~/.claude/output-styles/TARS.md, if install.sh put it there
+  weekly check   ~/.claude/forge/ and its SessionStart hook, if --weekly was used
 
 This repository (from .forge/manifest.tsv, or from known markers):
   files          .forge/, .craft/, .claude/charter.json, Charter's rules files
@@ -124,6 +127,8 @@ if [ -f "$SETTINGS" ]; then
     grep -q 'FORCE_AUTOUPDATE_PLUGINS' "$SETTINGS" && USER_HITS="$USER_HITS env.FORCE_AUTOUPDATE_PLUGINS"
     grep -q "@$MARKET" "$SETTINGS" && USER_HITS="$USER_HITS enabledPlugins"
     is_tars "$(style_of "$SETTINGS")" && USER_HITS="$USER_HITS outputStyle"
+    grep -q "$STATE_DIR/weekly-update.sh" "$SETTINGS" 2>/dev/null \
+        && USER_HITS="$USER_HITS hooks.SessionStart(weekly-update)"
 fi
 
 # ---------------------------------------------------------- project survey
@@ -219,6 +224,9 @@ elif [ -f "$STYLE_FILE" ]; then
     echo "  style file    $STYLE_FILE"
 else
     echo "  style file    not present"
+fi
+if [ -d "$STATE_DIR" ]; then
+    echo "  weekly check  $STATE_DIR"
 fi
 
 echo
@@ -323,6 +331,34 @@ for item in removals:
             del data["permissions"]
 
 if scope == "user":
+    import os
+    state_dir = os.environ.get("FORGE_STATE_DIR", "")
+    hooks = data.get("hooks")
+    if state_dir and isinstance(hooks, dict) and isinstance(hooks.get("SessionStart"), list):
+        groups, kept, dropped = hooks["SessionStart"], [], 0
+        for group in groups:
+            if not isinstance(group, dict):
+                kept.append(group)
+                continue
+            inner = []
+            for h in group.get("hooks", []):
+                cmd = h.get("command", "") if isinstance(h, dict) else ""
+                if cmd.startswith(state_dir):
+                    dropped += 1
+                else:
+                    inner.append(h)
+            if inner:
+                group["hooks"] = inner
+                kept.append(group)
+            elif not group.get("hooks"):
+                kept.append(group)
+        if dropped:
+            changed.append("hooks.SessionStart weekly update check")
+            hooks["SessionStart"] = kept
+            if not kept:
+                del hooks["SessionStart"]
+            if not hooks:
+                del data["hooks"]
     if data.get("outputStyle") in ("TARS", "tars:TARS"):
         del data["outputStyle"]
         changed.append("outputStyle")
@@ -389,6 +425,28 @@ PY
             }
           }
           if (scope === "user") {
+            const stateDir = process.env.FORGE_STATE_DIR || "";
+            const hk = data.hooks;
+            if (stateDir && hk && Array.isArray(hk.SessionStart)) {
+              const kept = [];
+              let dropped = 0;
+              for (const g of hk.SessionStart) {
+                if (!g || typeof g !== "object") { kept.push(g); continue; }
+                const inner = (g.hooks || []).filter(h => {
+                  const cmd = (h && h.command) || "";
+                  if (cmd.startsWith(stateDir)) { dropped++; return false; }
+                  return true;
+                });
+                if (inner.length) { g.hooks = inner; kept.push(g); }
+                else if (!g.hooks) { kept.push(g); }
+              }
+              if (dropped) {
+                changed.push("hooks.SessionStart weekly update check");
+                hk.SessionStart = kept;
+                if (!kept.length) delete hk.SessionStart;
+                if (!Object.keys(hk).length) delete data.hooks;
+              }
+            }
             if (styles.includes(data.outputStyle)) { delete data.outputStyle; changed.push("outputStyle"); }
             if (data.env && data.env.FORCE_AUTOUPDATE_PLUGINS !== undefined) {
               delete data.env.FORCE_AUTOUPDATE_PLUGINS;
@@ -437,6 +495,14 @@ if [ "$KEEP_STYLE" = 0 ] && [ -f "$STYLE_FILE" ]; then
     rm -f "$STYLE_FILE"
     echo "Style file:"
     echo "  removed $STYLE_FILE"
+    echo
+fi
+
+# The weekly check's own directory: the hook script, its stamp and its log.
+if [ -d "$STATE_DIR" ]; then
+    rm -rf "$STATE_DIR"
+    echo "Weekly check:"
+    echo "  removed $STATE_DIR"
     echo
 fi
 

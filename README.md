@@ -207,6 +207,39 @@ own manifest, changelog and tests. Copy the one you want out of this repo and it
 keeps working — which is exactly why none of them declares the others as a
 dependency. Publishing your own copy: [docs/PUBLISHING.md](docs/PUBLISHING.md).
 
+## Update
+
+```
+/forge:update
+```
+
+Shows what is installed against what is published, and updates what is behind.
+From a shell:
+
+```bash
+./update.sh --check     # versions only, changes nothing
+./update.sh             # update
+```
+
+```powershell
+.\update.ps1 -Check
+.\update.ps1
+```
+
+**To have it happen by itself, use the built-in.** Claude Code's plugin
+auto-update runs at every session start, which is more often than any schedule
+you would build, and `setup.sh` turns it on by default. If you opted out and
+changed your mind:
+
+```bash
+./setup.sh --auto-update-only
+```
+
+`./update.sh --weekly` exists for the narrower case: auto-update deliberately
+off, but you would still rather not fall six versions behind. It installs one
+`async` `SessionStart` hook that does nothing at all six days out of seven.
+Details and the trade-off: [docs/AUTO-UPDATE.md](docs/AUTO-UPDATE.md).
+
 ## Uninstall
 
 ```
@@ -281,6 +314,7 @@ Worked sequences are in [examples/](examples/README.md).
 | `setup.sh` / `setup.ps1` | The Forge installer. Installs all three and enables auto-update |
 | `install.sh` / `install.ps1` | The TARS file installer. Copies `output-styles/TARS.md` into `~/.claude/` |
 | `uninstall.sh` / `uninstall.ps1` | The uninstaller. Removes the plugins, the settings and what Charter and Craft wrote here |
+| `update.sh` / `update.ps1` | The updater. Version check, update, and the optional weekly check |
 | `GUIDE.txt` | The whole thing as one plain-text file: install, use, update, uninstall |
 | `.gitattributes` | Forces LF on `*.sh`, so a Windows checkout does not break every script |
 | `docs/` | Long-form documentation, plus the setup and publishing guides |

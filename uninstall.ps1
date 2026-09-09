@@ -47,6 +47,7 @@ $Market    = if ($env:FORGE_MARKET) { $env:FORGE_MARKET } else { 'claude-forge' 
 $CfgDir    = if ($env:CLAUDE_CONFIG_DIR) { $env:CLAUDE_CONFIG_DIR } else { Join-Path $HOME '.claude' }
 $Settings  = Join-Path $CfgDir 'settings.json'
 $StyleFile = Join-Path (Join-Path $CfgDir 'output-styles') 'TARS.md'
+$StateDir  = Join-Path $CfgDir 'forge'
 $Project   = (Get-Location).Path
 $Manifest  = Join-Path $Project '.forge\manifest.tsv'
 $Styles    = @('TARS', 'tars:TARS')
@@ -76,6 +77,7 @@ Machine:
                  enabledPlugins entries ending in @claude-forge
                  outputStyle, only when it is set to TARS
   style file     ~\.claude\output-styles\TARS.md, if install.ps1 put it there
+  weekly check   ~\.claude\forge\ and its SessionStart hook, if -Weekly was used
 
 This repository (from .forge\manifest.tsv, or from known markers):
   files          .forge\, .craft\, .claude\charter.json, Charter's rules files
@@ -173,6 +175,16 @@ if ($null -ne $userData) {
         if ($gone.Count) { $userHits += "enabledPlugins: $($gone -join ', ')" }
     }
     if ($Styles -contains $userData['outputStyle']) { $userHits += 'outputStyle' }
+    if ($userData.Contains('hooks') -and $userData['hooks'].Contains('SessionStart')) {
+        foreach ($g in @($userData['hooks']['SessionStart'])) {
+            if ($null -eq $g -or -not $g.Contains('hooks')) { continue }
+            foreach ($h in @($g['hooks'])) {
+                if ($h -and $h.Contains('command') -and "$($h['command'])".StartsWith($StateDir)) {
+                    $userHits += 'hooks.SessionStart(weekly-update)'
+                }
+            }
+        }
+    }
 }
 
 # Every project fact lands in these lists, from the receipt when there is one
@@ -256,6 +268,7 @@ elseif ($userHits.Count) {
 if ($KeepStyle)          { Write-Host "  style file    kept (-KeepStyle)" }
 elseif (Test-Path -LiteralPath $StyleFile) { Write-Host "  style file    $StyleFile" }
 else                     { Write-Host "  style file    not present" }
+if (Test-Path -LiteralPath $StateDir) { Write-Host "  weekly check  $StateDir" }
 
 Write-Host ""
 Write-Host "This repository   $Project"
@@ -323,6 +336,24 @@ if (-not $KeepSettings -and $userHits.Count) {
             $changed += "extraKnownMarketplaces.$Market"
             if ($data['extraKnownMarketplaces'].Count -eq 0) { $data.Remove('extraKnownMarketplaces') }
         }
+        if ($data.Contains('hooks') -and $data['hooks'].Contains('SessionStart')) {
+            $kept = @(); $dropped = 0
+            foreach ($g in @($data['hooks']['SessionStart'])) {
+                if ($null -eq $g -or -not $g.Contains('hooks')) { $kept += $g; continue }
+                $inner = @()
+                foreach ($h in @($g['hooks'])) {
+                    if ($h -and $h.Contains('command') -and "$($h['command'])".StartsWith($StateDir)) { $dropped++ }
+                    else { $inner += $h }
+                }
+                if ($inner.Count) { $g['hooks'] = $inner; $kept += $g }
+            }
+            if ($dropped) {
+                $changed += 'hooks.SessionStart weekly update check'
+                if ($kept.Count) { $data['hooks']['SessionStart'] = $kept }
+                else { $data['hooks'].Remove('SessionStart') }
+                if ($data['hooks'].Count -eq 0) { $data.Remove('hooks') }
+            }
+        }
         if ($data.Contains('enabledPlugins')) {
             $gone = @($data['enabledPlugins'].Keys | Where-Object { $_ -like "*@$Market" })
             foreach ($k in $gone) { $data['enabledPlugins'].Remove($k) }
@@ -339,6 +370,14 @@ if (-not $KeepStyle -and (Test-Path -LiteralPath $StyleFile)) {
     Remove-Item -LiteralPath $StyleFile -Force
     Write-Host "Style file:"
     Write-Host "  removed $StyleFile"
+    Write-Host ""
+}
+
+# The weekly check's own directory: the hook script, its stamp and its log.
+if (Test-Path -LiteralPath $StateDir) {
+    Remove-Item -LiteralPath $StateDir -Recurse -Force
+    Write-Host "Weekly check:"
+    Write-Host "  removed $StateDir"
     Write-Host ""
 }
 

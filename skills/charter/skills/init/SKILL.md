@@ -9,6 +9,7 @@ allowed-tools:
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/audit.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/companions.sh *)
   - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/lint-rules.sh *)
+  - Bash(${CLAUDE_PLUGIN_ROOT}/scripts/record-hash.sh *)
 ---
 
 # Charter: initialise
@@ -192,6 +193,11 @@ Write `.claude/charter.json`:
   "paths_referenced": ["..."]
 }
 ```
+
+When `.claude/charter.json` already exists and only `head` / `manifest_hash` are stale, do
+not rewrite the file and do not patch it with an inline `python3 -c`, `node -e`, `jq` or
+`sed` call. Run `${CLAUDE_PLUGIN_ROOT}/scripts/record-hash.sh .` instead. An improvised
+interpreter command cannot be covered by `allowed-tools`, so it prompts the user every run.
 
 Offer, do not impose, a `.gitignore` entry for `.claude/settings.local.json` and `.claude/charter.json` when the scope is local.
 
