@@ -73,19 +73,21 @@ Two things to know. It is **private to your machine** — your teammates never s
 
 ## The questions Charter asks
 
-**"Who else works in this repo?"** Decides whether the boundaries go in a committed file everyone shares, or a personal file only you have. It also sets the default for the next question.
+They are asked in plain words. You do not need to know any of the four mechanisms above to answer them.
 
-**"How much git autonomy should Claude have?"**
+**"Who works on this code?"** Decides whether the limits go in a file your teammates share, or a personal file only you have. It also sets the default for the next question.
 
-- *Propose only* — Claude shows you changes and commits nothing.
-- *Local commits* — Claude commits on your branch; pushing asks first.
-- *Full* — Claude commits and pushes; pushing to the main branch still asks.
+**"How much should Claude do with Git on its own?"** Git keeps a record of every version of your project, and can upload that record to GitHub so other people get it.
+
+- *Just edit files* — Claude edits and shows you what changed. Nothing goes into the record, nothing is uploaded. Saving and uploading stays your job.
+- *Save here only* — Claude can add its work to the record on this computer. Uploading always stops and asks you first, so nothing leaves your machine by surprise.
+- *Save and upload* — Claude can add its work and upload it without asking each time. Uploading to your main branch, the copy everyone else uses, still asks first.
 
 Force-push is blocked in all three. That is not negotiable, and it is the one setting worth explaining: force-push is the git command that destroys work other people have already pulled.
 
-**"Can Claude change the database on this machine?"** Only asked if you have migrations. *Read only* is the default and means schema commands stop and ask you first.
+**"Can Claude change the database on this computer?"** Only asked if you have migrations. *Look, do not change* is the default: Claude reads what is stored, and anything that would change the structure or delete data stops and asks first. This question is only ever about the copy on your machine — a live database real users depend on is out of reach whatever you pick.
 
-**"Anything Claude must never touch?"** Only asked if Charter found deploy scripts or infrastructure directories.
+**"Is there anything here Claude should never change?"** Only asked if Charter found deploy scripts or infrastructure directories. Tick whatever you want completely off limits; leaving it all unticked is a normal answer. Passwords and keys are blocked already, so they are not in the list.
 
 ---
 

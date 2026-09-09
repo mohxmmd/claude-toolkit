@@ -54,11 +54,13 @@ Bad facts, all of which `/doctor` deletes on sight: directory trees, dependency 
 
 Triggered by `shape.size_class: new`, which the survey sets when there are **no commits at all**, or when the tree has fewer than 15 tracked files **and** no manifest of any kind. A six-file repository with a full `package.json` is a small project, not a greenfield one — do not put it into this mode.
 
-The survey has nothing to survey, so the flow inverts from inference to declaration. Ask three questions:
+The survey has nothing to survey, so the flow inverts from inference to declaration. Ask three questions, in these words:
 
-1. What are you building?
-2. Which stack? *(offer "not decided yet")*
-3. Solo, team, or open source?
+1. **What are you building?** *(free text — one line is enough)*
+2. **What are you building it with?** — list the likely languages or frameworks as options, and always offer **"Not decided yet"** as a real answer, not a fallback.
+3. **Who works on this code?** — *Just me* / *Me and a team* / *It is public / open source*, worded as in Step 4 of `/charter:init`.
+
+Same wording rules as Step 4: no Charter vocabulary, every option says what happens rather than what gets written, and a beginner can answer all three without looking anything up.
 
 Then write a twelve-line fence with commands marked `TBD` and a note to re-run `/charter:init` after the first dependency install. Write the conservative boundary set: secrets denied, force-push denied, push asked.
 

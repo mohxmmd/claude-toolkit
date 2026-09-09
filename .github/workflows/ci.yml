@@ -38,9 +38,30 @@ jobs:
         run: |
           sh -n install.sh
           sh -n setup.sh
+          sh -n uninstall.sh
+          sh -n bundles/forge/scripts/uninstall.sh
           ./setup.sh --help > /dev/null
+          ./uninstall.sh --help > /dev/null
           test -f output-styles/TARS.md
           head -1 output-styles/TARS.md | grep -q '^---$'
+
+      - name: Parse check the PowerShell scripts
+        shell: pwsh
+        run: |
+          $bad = 0
+          foreach ($f in @('install.ps1', 'setup.ps1', 'uninstall.ps1')) {
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile(
+              (Resolve-Path $f), [ref]$null, [ref]$errors)
+            if ($errors) {
+              Write-Host "$f :"
+              $errors | ForEach-Object { Write-Host "  $($_.Message)" }
+              $bad++
+            } else {
+              Write-Host "$f parses"
+            }
+          }
+          if ($bad) { exit 1 }
 
       - name: Validate every plugin
         run: |

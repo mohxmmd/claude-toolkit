@@ -18,6 +18,11 @@ skills/charter/tests/fixtures/
 *.swp
 Thumbs.db
 
+# Forge's per-project receipt and the copies an uninstall leaves behind. Kept
+# here so a trial run inside this repo cannot be committed.
+.forge/
+.forge-backup-*/
+
 # Machine-local Claude Code state. settings.json is shareable; these are not.
 .claude/settings.local.json
 .claude/charter.json

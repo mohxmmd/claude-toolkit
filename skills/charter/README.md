@@ -62,10 +62,12 @@ That is the whole thing. It takes about a minute.
 
 | Question | Skipped when |
 | --- | --- |
-| Who else works in this repo? | Never, but pre-selected from author count |
-| How much git autonomy should Claude have? | Never — no repo can answer this |
+| Who works on this code? | Never, but pre-selected from author count |
+| How much should Claude do with Git on its own? | Never — no repo can answer this |
 | Can Claude change the database on this machine? | No migrations or database tooling found |
-| Anything Claude must never touch? | No deploy tooling or infrastructure found |
+| Anything here Claude should never change? | No deploy tooling or infrastructure found |
+
+Every question is asked in plain words, and every option describes what happens to you rather than the setting it writes — *"uploading always asks you first"*, not *"adds an `ask` rule for `Bash(git push *)`"*. Answering requires no knowledge of permission rules, and the wording is fixed in [`references/questions.md`](references/questions.md) rather than improvised per run.
 
 Not asked, because a safe default is obvious: production confirmation (always required), secrets (always denied), branch naming, commit message style, whether to run tests.
 

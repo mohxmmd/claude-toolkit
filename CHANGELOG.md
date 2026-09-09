@@ -17,6 +17,11 @@ Two version numbers matter:
 
 ## [Unreleased]
 
+### Added
+
+- `/craft:atlas` records what it wrote in `.forge/manifest.tsv`, so an uninstall
+  removes `.craft/` and the `.gitignore` line it added, and nothing else.
+
 ## [0.2.0] - 2026-09-08
 
 `craft_schema` is unchanged at 1. No migration is needed; `.craft/config.md` is

@@ -77,18 +77,18 @@ Anything that fails or is absent is recorded as "none" — not guessed at.
 
 Use **one** `AskUserQuestion` call carrying only the questions that survive the suppression rules below. Two is typical. Four is the maximum.
 
-| Q | Ask | Suppress when | Pre-select |
+| Q | Subject | Suppress when | Pre-select |
 | --- | --- | --- | --- |
-| 1 | Who else works in this repo? *solo / team / open source* | Never suppressed, but pre-select from `git.authors_90d` | ≥3 authors → team; 1 author → solo |
-| 2 | How much git autonomy should Claude have? *propose only / local commits / full* | Never — no repo can answer this | team → local commits; solo → local commits; open source → propose only |
-| 3 | Can Claude change the database on this machine? *read only / local migrations / no access* | `danger.db_tooling`, `danger.paths` and `danger.destructive_cmds` all show no database surface | read only |
-| 4 | Anything here Claude must never touch? *checkboxes built from `danger.paths`* | No deploy tooling, infra directories, or unusual sensitive paths found | nothing checked |
+| 1 | Who works on the repo | Never suppressed, but pre-select from `git.authors_90d` | ≥3 authors → team; 1 author → solo |
+| 2 | Git autonomy | Never — no repo can answer this | team → local commits; solo → local commits; open source → propose only |
+| 3 | Database access | `danger.db_tooling`, `danger.paths` and `danger.destructive_cmds` all show no database surface | read only |
+| 4 | Off-limits paths | No deploy tooling, infra directories, or unusual sensitive paths found | nothing checked |
 
-When `danger.destructive_cmds` is non-empty, list those commands inside question 3 rather than adding a question. They are the same decision, and the user recognises `cms:restore` faster than they recognise "database autonomy".
+A checked path in question 4 compiles into a `Read()` / `Edit()` deny, never a `cd` or `ls` rule.
+
+**Read [references/questions.md](../../references/questions.md) before making the call.** It carries the exact wording for every question, every option, and the answer keys those options record. A question phrased in Charter's vocabulary gets a confident wrong answer, and that answer is written into enforced settings.
 
 Do **not** ask about: production confirmation (always required), secrets (always denied), branch naming, commit message style (infer from `git.style_conventional`), whether to run tests, or the CI provider.
-
-Phrase every option in plain language. The user should not need to know what a permission rule is to answer.
 
 ## Step 4b — Offer the companions, when there are any
 
@@ -116,6 +116,8 @@ Settings scope follows Q1:
 
 - **team** or **open source** → `.claude/settings.json` (committed, so teammates inherit it)
 - **solo** → `.claude/settings.local.json` (personal, untracked)
+
+**A boundary stops a destructive action, never a mechanic.** No rule may fire during ordinary work — nothing on `cd`, `ls`, `grep` or `env`, no bare `Bash(python *)` / `Bash(npm *)`. `deny` and `ask` fire ahead of `auto` mode, so a rule that prompts on routine work reads as Charter overriding the user. The linter fails the write on these. The shell re-entry block (`sh -c` and friends) is an offer in Step 6, not a default, and carries its cost in one line.
 
 **Then offer tier 0 separately.** Permission rules match command text; the sandbox is enforced by the operating system and covers what a text matcher cannot, including a shell that re-enters through `sh -c`. Offer it as its own accept in Step 6, never bundled with the boundaries, and skip the offer entirely on native Windows. The keys Charter may and may not write are in [references/policy.md](../../references/policy.md#sandbox--offered-once-never-assumed).
 
@@ -162,12 +164,13 @@ PROPOSED CHANGES                              nothing is written until you accep
 
 CLAUDE.md                        +N lines inside a charter fence
 .claude/settings.json            +N permission rules  (lint: N/N passed)
-.claude/settings.json            sandbox: OS-enforced   [separate accept]
+.claude/settings.json            shell re-entry: 4 ask rules   [separate accept]
+.claude/settings.json            sandbox: OS-enforced          [separate accept]
 .claude/settings.local.json      outputStyle (omit when not offered/accepted)
 .claude/rules/<area>.md          new, loads only when those files are opened
 .claude/charter.json             new, never loaded into a session
 
-Accept?  [a]ll  [e]dit  [s]kip boundaries  [x]skip sandbox  [n]one
+Accept?  [a]ll  [e]dit  [s]kip boundaries  [r]skip shell re-entry  [x]skip sandbox  [n]one
 ```
 
 On accept, write in this order: rules files, settings, CLAUDE.md fence, then `charter.json` last so a partial run is detectable.
@@ -191,6 +194,33 @@ Write `.claude/charter.json`:
 ```
 
 Offer, do not impose, a `.gitignore` entry for `.claude/settings.local.json` and `.claude/charter.json` when the scope is local.
+
+### Record what was written
+
+Append one line per artifact to `.forge/manifest.tsv`, creating it with the
+header if absent. This receipt is what lets an uninstall remove Charter's rules
+without touching the user's. Tab-separated, `component  kind  path  a  b`:
+
+```
+# component	kind	path	a	b
+charter	path	.claude/charter.json
+charter	path	.claude/rules/secrets.md
+charter	fence	CLAUDE.md	<!-- charter:start v1 -->	<!-- charter:end -->
+charter	settings	.claude/settings.json	deny	Bash(git push --force*)
+charter	settings	.claude/settings.local.json	key	outputStyle
+charter	gitignore	.gitignore	.claude/charter.json
+```
+
+`path` is deleted whole. `fence` cuts the lines between those two markers.
+`settings` pulls one rule from `permissions.<bucket>`, or with `key` drops a
+top-level key. `gitignore` removes one exact line. Paths are repo-relative.
+
+- **Only what you actually wrote.** A declined rule is not recorded. Each line
+  is a promise that removing it is safe.
+- **Never record a file you did not create.** Record the fence and the rule,
+  never `CLAUDE.md` or a settings file itself.
+- Re-running skips lines already present.
+
 
 ## Step 7 — Report
 

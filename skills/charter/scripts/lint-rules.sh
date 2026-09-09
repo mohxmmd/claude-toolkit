@@ -96,13 +96,30 @@ grep -q 'Read(\./\.env\.\*)' "$FILE" \
 printf '%s\n' "$DENY" | grep -qE '^Read\(\./\*\*/\*\.pem\)$' \
   && ok "secrets: block present" || bad "secrets: block missing" "Read(./**/*.pem) not found in deny"
 
-# --- gotcha 12: the shell re-entry block ------------------------------------
-MISS=""
-for r in 'Bash(sh -c *)' 'Bash(bash -c *)' 'Bash(eval *)'; do
-  printf '%s\n%s\n' "$ASK" "$DENY" | grep -Fxq "$r" || MISS="$MISS $r"
-done
-[ -z "$MISS" ] && ok "gotcha 12: shell re-entry covered" \
-               || bad "gotcha 12: shell re-entry open" "missing:$MISS"
+# --- auto mode: a boundary stops an action, never a mechanic -----------------
+# A rule that fires during ordinary work is the wrong rule. In auto mode the user
+# has already said "do not ask me about mechanics", and deny/ask fire ahead of
+# that. These three checks are why Charter cannot reintroduce prompts the user
+# turned off. See references/policy.md, "Rules that must never be generated".
+DENYASK=$(printf '%s\n%s\n' "$DENY" "$ASK" | grep . || true)
+NAV='cd|pwd|ls|cat|head|tail|echo|grep|rg|find|wc|which|env|export'
+V=$(printf '%s\n' "$DENYASK" | grep -E "^Bash\((${NAV})([ )]|\*)" || true)
+[ -z "$V" ] && ok "auto mode: no navigation/inspection rule" \
+             || bad "auto mode: navigation rule" "prompts on ordinary work, stops nothing: $(echo "$V" | tr '\n' ' ')"
+
+RUNNER='python|python3|node|deno|bun|php|ruby|perl|npm|npx|pnpm|yarn|make|just|composer|go|cargo|dotnet'
+V=$(printf '%s\n' "$DENYASK" | grep -E "^Bash\((${RUNNER}) ?\*?\)$" || true)
+[ -z "$V" ] && ok "auto mode: no bare interpreter/runner rule" \
+             || bad "auto mode: bare runner rule" "name the destructive command, not what runs it: $(echo "$V" | tr '\n' ' ')"
+
+# The shell re-entry block is an offer, not a requirement. What is checked is
+# that the forms Charter must never write are absent.
+V=$(printf '%s\n' "$DENYASK" | grep -E '^Bash\((env|watch|setsid|flock) \*\)$' || true)
+[ -z "$V" ] && ok "gotcha 12: no false-positive wrapper rules" \
+             || bad "gotcha 12: wrapper rule" "fires on ordinary commands: $(echo "$V" | tr '\n' ' ')"
+SRE=$(printf '%s\n' "$ASK" | grep -cE '^Bash\((sh|bash|zsh) -c \*\)$|^Bash\(eval \*\)$' || true)
+[ "${SRE:-0}" -gt 0 ] && ok "gotcha 12: shell re-entry covered (opt-in, ${SRE} rules)" \
+                      || ok "gotcha 12: shell re-entry not covered — an offer, not a requirement"
 
 # --- sandbox: the keys Charter must never write -----------------------------
 grep -q '"filesystem"' "$FILE" \

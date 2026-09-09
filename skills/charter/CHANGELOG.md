@@ -8,6 +8,38 @@ always proposes and always shows a diff.
 
 ## [Unreleased]
 
+### Added
+
+- `/charter:init` records what it wrote in `.forge/manifest.tsv`: the state file,
+  the rules files it created, the `CLAUDE.md` fence markers, each permission rule
+  it added, and any `.gitignore` line. This is what lets an uninstall remove
+  Charter's rules without touching yours. A rule that was proposed and declined
+  is never recorded.
+
+### Fixed
+
+- **Charter no longer reintroduces prompts that `auto` mode turned off.** `deny`
+  and `ask` are evaluated before the model, so they fire regardless of the
+  permission mode the user chose. Rules aimed at mechanics rather than
+  destruction therefore land as prompts on ordinary work — `cd`, a `python`
+  script, a wrapped pipeline — which is Charter obstructing the user rather than
+  enhancing them.
+  - The **shell re-entry block is now an offer**, not a mandatory emission.
+    `sh -c`, `bash -c`, `zsh -c` and `eval` are proposed in Step 6 on their own
+    accept line, with their cost stated. `env`, `watch`, `setsid` and `flock`
+    are never emitted at any tier: they prefix ordinary commands and the prompt
+    buys nothing.
+  - `scripts/lint-rules.sh` no longer **requires** the block, and now **fails the
+    write** on any deny/ask rule whose first token is navigation or inspection
+    (`cd ls cat grep find env …`) and on any bare interpreter or runner rule
+    (`Bash(python *)`, `Bash(npm *)`). Named destructive commands
+    (`Bash(python manage.py flush*)`) are unaffected.
+  - Question 4's off-limits paths compile to `Read()` / `Edit()` denies, never to
+    a `cd` or `ls` command rule.
+- **`git config` moved from `deny` to `ask`** in the Propose-only and
+  Local-commits presets. A deny cannot carry exceptions, so it also blocked the
+  read-only `git config --get`.
+
 ## [0.2.0] — 2026-09-08
 
 ### Added

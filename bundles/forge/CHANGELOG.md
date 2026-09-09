@@ -13,6 +13,31 @@ pinned range no longer resolves.
 
 ### Added
 
+- **`/forge:uninstall`** — the one command that removes all of it: the four
+  plugins, the marketplace, the settings the installer wrote, the TARS style
+  file, and everything Charter and Craft wrote into the repository it is run
+  from. It prints the full list first and removes nothing until the user says
+  yes. `--plan` prints and stops.
+- **`uninstall.sh` and `uninstall.ps1`** at the repository root, for uninstalling
+  without the plugin installed, plus `scripts/uninstall.sh` inside the bundle so
+  the command and the shell script are the same code.
+- **The receipt, `.forge/manifest.tsv`** — Charter and Craft now append a line
+  for every artifact they create and every file they edit, so removal is exact
+  rather than inferred. The working agreement is cut out of `CLAUDE.md` and the
+  prose around it survives byte for byte; rules Charter added come out of
+  `permissions`, rules you added stay. Format is documented in
+  [docs/UNINSTALL.md](../../docs/UNINSTALL.md).
+- **A fallback for projects with no receipt.** Markers and known paths find the
+  fence, `.craft/`, `.claude/charter.json` and a TARS `outputStyle`. Permission
+  rules cannot be attributed without a receipt, so they are reported and left
+  alone rather than guessed at.
+- Backups for everything removed: settings files as `*.backup-<timestamp>`
+  beside the original, project files copied into `.forge-backup-<timestamp>/`.
+- 18 assertions in `tests/run.sh` covering both removal paths, including that
+  user-authored prose, permission rules and `.gitignore` lines survive.
+
+### Added
+
 - **`setup.ps1` and `install.ps1`** — line-for-line PowerShell equivalents of
   `setup.sh` and `install.sh`, so Windows no longer needs a POSIX shell to
   install anything. Same options under PowerShell naming (`-NoAutoUpdate`,

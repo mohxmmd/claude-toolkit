@@ -28,6 +28,7 @@ Restart Claude Code, then in the repository you want set up:
 /charter:init       the actual setup — two to five questions, about a minute
 /forge:setup      where am I, and what should I type next
 /forge:doctor     what is stale, duplicated or contradictory across my AI docs
+/forge:uninstall  remove all of it, from this machine and this repository
 ```
 
 `/charter:init` does the work: it surveys the repo, asks its questions, shows a
@@ -99,16 +100,36 @@ Full reasoning: [docs/forge/bundle.md](../../docs/forge/bundle.md).
 
 ## Uninstalling
 
-```bash
-claude plugin uninstall forge@claude-forge
-claude plugin prune
+```
+/forge:uninstall
 ```
 
-`prune` drops the three dependencies only if the bundle pulled them in and
-nothing else needs them. Anything you had installed explicitly stays.
+Prints what it found, asks once, and removes it: the four plugins, the
+marketplace, the settings the installer wrote, the TARS style file, and
+everything Charter and Craft wrote into the repository you are in. Copies of
+everything removed are kept in `.forge-backup-<timestamp>/`.
 
-Everything Charter wrote into your repositories keeps working. It is standard
-Claude Code configuration and does not depend on any plugin being installed.
+From a shell, with no plugin needed:
+
+```bash
+./uninstall.sh --plan     # see the list, change nothing
+./uninstall.sh            # remove it
+```
+
+Removal is exact because Charter and Craft record what they write in
+`.forge/manifest.tsv`. Your prose in `CLAUDE.md` and the permission rules you
+added yourself are not touched.
+
+To keep what is in your repositories and remove only the plugins:
+
+```bash
+./uninstall.sh --keep-project
+```
+
+Everything Charter wrote then keeps working. It is standard Claude Code
+configuration and does not depend on any plugin being installed.
+
+Full detail: [docs/UNINSTALL.md](../../docs/UNINSTALL.md).
 
 ## License
 

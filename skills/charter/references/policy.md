@@ -59,7 +59,7 @@ Never emit them there.
 
 **12. `sh -c` and friends re-enter the shell and are never split.**
 `sh -c 'git push origin main'` is one command whose argument happens to be a command. No rule written for `git push` sees it. Neither do `bash -c`, `zsh -c`, `eval`, or `env`. The docs' own table shows `Bash(* --version)` matching `bash -c 'echo hi' --version`, which is the same hole from the other side.
-**Always emit the shell re-entry ask block below.** It is the difference between "stops accidents" and "stops accidents and the obvious way around them".
+**Offer the shell re-entry ask block below**, as its own accept and with its cost stated. Never emit it unasked: it fires on ordinary wrapped commands, and in `auto` mode that reads as Charter overriding a decision the user already made. The sandbox closes this gap without the prompts.
 
 **13. A field-scoped rule is accepted, ignored, and warned about.**
 `Bash(command:rm *)` names the tool's primary content field. Claude Code ignores it and warns at startup, because a compound command would bypass it. Same for `Read(file_path:...)`, `Grep(path:...)`, `NotebookEdit(notebook_path:...)`. Write `Bash(rm *)`, `Read(./path)`, `WebFetch(domain:host)`.
@@ -78,17 +78,51 @@ Never emit them there.
 
 ---
 
-## Shell re-entry — always emitted, not a question
+## Shell re-entry — offered, never assumed
 
-The one gap a text matcher cannot close by itself. Emitted in every repo, at `ask` rather than `deny`, because each of these is occasionally the right tool and a prompt is enough to stop it being silent:
+`sh -c 'git push origin main'` is one command whose argument happens to be a
+command, and no rule written for `git push` sees it. Offer this in Step 6 on its
+own accept line, never bundled with the boundaries:
 
 ```
-ask:   Bash(sh -c *)      Bash(bash -c *)    Bash(zsh -c *)
-       Bash(eval *)       Bash(env *)
-       Bash(watch *)      Bash(setsid *)     Bash(flock *)
+ask:   Bash(sh -c *)   Bash(bash -c *)   Bash(zsh -c *)   Bash(eval *)
 ```
 
-Do not deny these — a denied `env` breaks ordinary work and teaches the user to disable Charter. Do **not** add a rule for `find -exec`: it already prompts in Manual mode whatever you write, and a rule with `*` before `-exec` trips the startup warning in gotcha 4.
+**An offer, not a default.** These four also carry ordinary work. Most users run
+in `auto` mode, where `deny` and `ask` fire ahead of the decision they already
+made, so emitting these unasked reads as Charter overriding the user — and gets
+Charter disabled. State the cost in the offer: *"prompts on wrapped commands,
+including in auto mode."* Real containment here is tier 0, not tier 1.
+
+Never emit `Bash(env *)`, `Bash(watch *)`, `Bash(setsid *)` or `Bash(flock *)`,
+at any tier. `env` prefixes ordinary commands and the other three are rare
+enough that the prompt buys nothing. Do **not** add a rule for `find -exec`: it
+already prompts in Manual mode whatever you write, and a rule with `*` before
+`-exec` trips the startup warning in gotcha 4.
+
+---
+
+## Rules that must never be generated
+
+A boundary stops a destructive action. It never stops a mechanic. If a rule
+fires during ordinary work, it is the wrong rule whatever it protects.
+
+**No rule whose first token is navigation or inspection** — `cd pwd ls cat head
+tail echo grep rg find wc which env export`. There is no destructive `cd` a text
+rule catches: the damage is a separate command and matches separately (gotcha 5).
+
+**No bare interpreter or runner rule** — `Bash(python *)`, `Bash(node *)`,
+`Bash(php *)`, `Bash(npm *)`, `Bash(make *)`. Name the destructive command, not
+what runs it: `Bash(python manage.py flush*)`, never `Bash(python *)`. The bare
+form blocks the test suite, the build, and every script in the repo.
+
+**Question 4 compiles to path rules, never command rules.** "Never touch
+`infra/`" becomes `deny: Read(./infra/**)` plus `Edit(./infra/**)` where
+notebooks exist (gotcha 7). Never `Bash(cd infra*)` or `Bash(ls infra*)` — any
+command can name a path without navigating to it, so those prompt constantly and
+stop nothing. Add a `.claude/rules/<area>.md` so the reason is visible there.
+
+`scripts/lint-rules.sh` fails the write on all three.
 
 ---
 
@@ -102,9 +136,9 @@ Chosen by question 2. Substitute the real default branch from `git.default_branc
 ```
 deny:  Bash(git push *)
        Bash(git reset --hard *)
-       Bash(git config *)
 ask:   Bash(git commit *)
        Bash(git checkout -b *)
+       Bash(git config *)
 allow: Bash(git status *)  Bash(git diff *)  Bash(git log *)  Bash(git show *)
 ```
 
@@ -115,8 +149,8 @@ allow: Bash(git status *)  Bash(git diff *)  Bash(git log *)  Bash(git show *)
 deny:  Bash(git push --force *)
        Bash(git push * --force*)
        Bash(git push * <default-branch>)
-       Bash(git config *)
 ask:   Bash(git push *)
+       Bash(git config *)
 allow: Bash(git commit *)  Bash(git add *)  Bash(git checkout -b *)
        Bash(git status *)  Bash(git diff *)  Bash(git log *)  Bash(git show *)
 ```
@@ -131,7 +165,7 @@ ask:   Bash(git push * <default-branch>)
 allow: commit, add, checkout -b, push to non-default branches, plus the read-only set
 ```
 
-**Force-push is denied in all three, including Full.** It is the one git operation that destroys other people's work, and a developer who genuinely needs it can run it in their own terminal. `git config` is denied outside Full because it can rewrite hooks and aliases into arbitrary execution.
+**Force-push is denied in all three, including Full.** It is the one git operation that destroys other people's work, and a developer who genuinely needs it can run it in their own terminal. `git config` **asks** outside Full rather than denying, because it can rewrite hooks and aliases into arbitrary execution — and because a deny cannot carry exceptions (gotcha 1), so it would also block `git config --get user.email`, which is read-only and routine.
 
 ---
 
@@ -313,7 +347,8 @@ It asserts, and exits non-zero on any failure:
 - No `defaultMode` key in a project or local file. (10)
 - No allow rule is doing safety work: nothing in `allow` also appears in `deny` or `ask`.
 - The secrets block is present.
-- The shell re-entry ask block is present. (12)
+- No deny or ask rule on a navigation or inspection command, and no bare interpreter or runner rule.
+- Any shell re-entry rules present are the four offered forms, at `ask`, and no `env` / `watch` / `setsid` / `flock` rule was written. (12)
 - No `sandbox.filesystem` key, no `network.strictAllowlist`, no unrequested `allowUnsandboxedCommands`.
 
 **Write the file only after the linter passes**, and report its result in Step 7. Two further checks it cannot make, which stay human:

@@ -81,6 +81,63 @@ check  "clean repo: still reports"     "# forge doctor v1"                  "$O2
 N=$(mktemp -d)
 bash "$D" "$N" >/dev/null 2>&1 && ok "runs outside a git repo" || bad "runs outside a git repo" "non-zero exit"
 
+
+# ---------------------------------------------------------------- uninstall
+U="$ROOT/scripts/uninstall.sh"
+sh -n "$U" && ok "uninstall.sh parses" || bad "uninstall.sh parses" "syntax error"
+"$U" --help >/dev/null 2>&1 && ok "uninstall.sh --help exits 0" || bad "uninstall.sh --help" "non-zero exit"
+
+# A project Charter and Craft have set up, with a receipt, plus rules and prose
+# the user wrote. Removal must take the first and leave the second.
+P=$(mktemp -d); G=$(mktemp -d)
+mkdir -p "$P/.claude/rules" "$P/.craft" "$P/.forge"
+printf '{"theme":"dark"}\n' > "$G/settings.json"
+printf '# Mine\n\nMy own prose.\n\n<!-- charter:start v1 -->\nagreement\n<!-- charter:end -->\n\nMore of mine.\n' > "$P/CLAUDE.md"
+printf '{"permissions":{"deny":["Bash(git push --force*)","Edit(mine.txt)"]}}\n' > "$P/.claude/settings.json"
+printf '{"v":1}\n' > "$P/.claude/charter.json"
+printf 'rule\n' > "$P/.claude/rules/secrets.md"
+printf 'config\n' > "$P/.craft/config.md"
+printf 'node_modules/\n.craft/cache/\nmyown.txt\n' > "$P/.gitignore"
+{
+  printf '# component\tkind\tpath\ta\tb\n'
+  printf 'charter\tpath\t.claude/charter.json\n'
+  printf 'charter\tpath\t.claude/rules/secrets.md\n'
+  printf 'charter\tfence\tCLAUDE.md\t<!-- charter:start v1 -->\t<!-- charter:end -->\n'
+  printf 'charter\tsettings\t.claude/settings.json\tdeny\tBash(git push --force*)\n'
+  printf 'craft\tpath\t.craft\n'
+  printf 'craft\tgitignore\t.gitignore\t.craft/cache/\n'
+} > "$P/.forge/manifest.tsv"
+
+echo "uninstall: plan"
+OU=$(cd "$P" && CLAUDE_CONFIG_DIR="$G" sh "$U" --plan --keep-plugins 2>&1)
+check "plan reads the receipt"     ".forge/manifest.tsv"        "$OU"
+check "plan names the fence"       "fence         CLAUDE.md"    "$OU"
+check "plan names a settings rule" "deny rule Bash(git push"    "$OU"
+[ -f "$P/.claude/charter.json" ] && ok "plan removes nothing" || bad "plan removes nothing" "charter.json is gone"
+
+echo "uninstall: removal"
+OU=$(cd "$P" && CLAUDE_CONFIG_DIR="$G" sh "$U" --yes --keep-plugins 2>&1)
+grep -q 'charter:start' "$P/CLAUDE.md" && bad "fence removed" "markers still present" || ok "fence removed"
+grep -q 'My own prose' "$P/CLAUDE.md"  && ok "prose survives"  || bad "prose survives" "user content lost"
+grep -q 'More of mine' "$P/CLAUDE.md"  && ok "tail survives"   || bad "tail survives" "content after fence lost"
+grep -q 'Edit(mine.txt)' "$P/.claude/settings.json" && ok "user rule survives" || bad "user rule survives" "removed a rule that was not ours"
+grep -q 'git push --force' "$P/.claude/settings.json" && bad "charter rule removed" "still present" || ok "charter rule removed"
+grep -q 'myown.txt' "$P/.gitignore" && ok "user gitignore line survives" || bad "user gitignore line survives" "removed"
+grep -q '.craft/cache/' "$P/.gitignore" && bad "craft gitignore line removed" "still present" || ok "craft gitignore line removed"
+[ -d "$P/.craft" ]              && bad ".craft removed" "still present"        || ok ".craft removed"
+[ -e "$P/.claude/charter.json" ] && bad "charter.json removed" "still present" || ok "charter.json removed"
+[ -e "$P/.claude/rules" ]        && bad "empty rules dir pruned" "still present" || ok "empty rules dir pruned"
+[ -d "$P"/.forge-backup-* ]      && ok "backup copies kept"    || bad "backup copies kept" "no backup directory"
+[ -f "$P"/.forge-backup-*/.craft/config.md ] && ok "backup holds the removed files" || bad "backup holds the removed files" "missing"
+
+# A project Forge never touched: nothing to find, no crash, no writes.
+Q=$(mktemp -d)
+OU=$(cd "$Q" && CLAUDE_CONFIG_DIR="$G" sh "$U" --plan --keep-plugins 2>&1)
+check "clean repo: nothing of ours" "nothing of ours here" "$OU"
+[ -z "$(ls -A "$Q")" ] && ok "clean repo: writes nothing" || bad "clean repo: writes nothing" "files appeared"
+
+rm -rf "$P" "$G" "$Q"
+
 rm -rf "$T" "$C" "$N"
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]

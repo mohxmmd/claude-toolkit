@@ -122,6 +122,27 @@ for CASE in 'Bash(ls*)|gotcha 3' 'Bash(* --version)|gotcha 17' 'Bash(git * main)
   bash "$ROOT/scripts/lint-rules.sh" "$LT/one.json" 2>&1 | grep -q "FAIL $G" \
     && ok "catches $R ($G)" || bad "catches $R" "$G did not fire"
 done
+
+# A boundary stops an action, never a mechanic. These are the rules that would
+# reintroduce prompts in auto mode, so the linter must fail the write on them.
+for CASE in 'Bash(cd *)|auto mode: navigation' 'Bash(ls infra*)|auto mode: navigation' \
+            'Bash(env *)|auto mode: navigation' 'Bash(python *)|auto mode: bare runner' \
+            'Bash(npm *)|auto mode: bare runner' 'Bash(watch *)|gotcha 12: wrapper'; do
+  R="${CASE%%|*}"; G="${CASE##*|}"
+  printf '{"permissions":{"ask":["%s"]}}' "$R" > "$LT/one.json"
+  bash "$ROOT/scripts/lint-rules.sh" "$LT/one.json" 2>&1 | grep -q "FAIL $G" \
+    && ok "rejects $R ($G)" || bad "rejects $R" "$G did not fire"
+done
+# ...while the targeted forms of the same commands stay legal.
+printf '{"permissions":{"deny":["Bash(python manage.py flush*)","Bash(npm run db:reset*)"],"ask":["Bash(bash -c *)"]}}' > "$LT/ok.json"
+bash "$ROOT/scripts/lint-rules.sh" "$LT/ok.json" 2>&1 | grep -q "FAIL auto mode" \
+  && bad "no false positive on named destructive commands" "auto-mode guard over-fired" \
+  || ok "no false positive on named destructive commands"
+# The shell re-entry block is an offer: its absence is not a failure.
+printf '{"permissions":{"deny":["Read(./**/*.pem)"],"ask":["Bash(php artisan migrate*)"]}}' > "$LT/nore.json"
+bash "$ROOT/scripts/lint-rules.sh" "$LT/nore.json" >/dev/null 2>&1 \
+  && ok "shell re-entry absent is not a failure" \
+  || bad "shell re-entry absent is not a failure" "linter still requires it"
 echo '{"permissions":{"deny":["Read(./.env.*)"]}}' > "$LT/env.json"
 bash "$ROOT/scripts/lint-rules.sh" "$LT/env.json" 2>&1 | grep -q "FAIL secrets: Read" \
   && ok "catches .env.* glob" || bad "catches .env.* glob" "did not fire"
@@ -146,13 +167,16 @@ rm -rf "$DT"
 
 echo "size gates"
 # Raised from 2500 to 3000 when policy.md gained tier 0 (sandbox), six more
-# matcher gotchas and the shell re-entry block. These live in references/, which
-# load on demand rather than every session, so the always-loaded cost is
-# unchanged. The gate that guards session cost is the per-SKILL.md word cap
-# below; this one only stops the plugin sprawling.
+# matcher gotchas and the shell re-entry block. Raised again to 3200 when the
+# setup questions moved into references/questions.md and were rewritten in plain
+# language, which costs words: an option nobody understands is answered wrong,
+# and the answer is written into enforced settings. These all live in
+# references/, which load on demand rather than every session, so the
+# always-loaded cost is unchanged. The gate that guards session cost is the
+# per-SKILL.md word cap below; this one only stops the plugin sprawling.
 N=$(find "$ROOT" -type f \( -name '*.md' -o -name '*.sh' -o -name '*.json' \) \
       -not -path '*/tests/fixtures/*' -not -path '*/.git/*' -exec cat {} + | wc -l | tr -d ' ')
-[ "$N" -le 3000 ] && ok "repo ${N} lines (<=3000)" || bad "repo ${N} lines (>3000)"
+[ "$N" -le 3200 ] && ok "repo ${N} lines (<=3200)" || bad "repo ${N} lines (>3200)"
 
 # What actually loads every session is the frontmatter `description` of each
 # skill, not the body. A SKILL.md body loads when the skill is invoked, and

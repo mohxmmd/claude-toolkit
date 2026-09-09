@@ -207,6 +207,35 @@ own manifest, changelog and tests. Copy the one you want out of this repo and it
 keeps working — which is exactly why none of them declares the others as a
 dependency. Publishing your own copy: [docs/PUBLISHING.md](docs/PUBLISHING.md).
 
+## Uninstall
+
+```
+/forge:uninstall
+```
+
+It prints what it found, asks once, and removes it: the plugins, the
+marketplace, the settings they wrote, the TARS style file, and everything
+Charter and Craft wrote into the repository you are in. From a shell:
+
+```bash
+./uninstall.sh --plan     # see the list, change nothing
+./uninstall.sh            # remove it
+```
+
+```powershell
+.\uninstall.ps1 -Plan
+.\uninstall.ps1
+```
+
+Your own files survive. The working agreement is cut out of `CLAUDE.md` and your
+prose stays byte for byte; rules Charter added come out of `permissions`, rules
+you added stay. That precision comes from `.forge/manifest.tsv`, the receipt
+Charter and Craft append to as they write. Copies of everything removed are kept
+in `.forge-backup-<timestamp>/`.
+
+Full detail, including partial removal and what happens without a receipt:
+[docs/UNINSTALL.md](docs/UNINSTALL.md).
+
 ## Using them together
 
 Nothing breaks if you run one alone. In practice they stack in the order you
@@ -248,9 +277,10 @@ Worked sequences are in [examples/](examples/README.md).
 | `skills/craft/` | The Craft plugin: skills, router, references, scripts, evals |
 | `skills/charter/` | The Charter plugin: skills, references, scripts, templates, tests |
 | `output-styles/` | The TARS output style, its manifest, changelog and contributing guide |
-| `bundles/forge/` | The bundle plugin: a manifest of dependencies, `/forge:setup` and `/forge:doctor` |
+| `bundles/forge/` | The bundle plugin: a manifest of dependencies, `/forge:setup`, `/forge:doctor` and `/forge:uninstall` |
 | `setup.sh` / `setup.ps1` | The Forge installer. Installs all three and enables auto-update |
 | `install.sh` / `install.ps1` | The TARS file installer. Copies `output-styles/TARS.md` into `~/.claude/` |
+| `uninstall.sh` / `uninstall.ps1` | The uninstaller. Removes the plugins, the settings and what Charter and Craft wrote here |
 | `.gitattributes` | Forces LF on `*.sh`, so a Windows checkout does not break every script |
 | `docs/` | Long-form documentation, plus the setup and publishing guides |
 | `examples/` | Worked command sequences |

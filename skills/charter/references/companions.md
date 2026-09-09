@@ -70,16 +70,19 @@ One `AskUserQuestion`, multi-select, at most two options. This is a fifth
 question and it is the only thing permitted to exceed the four-question cap,
 because it is skipped in every repository where it has nothing to offer.
 
-> **Two other tools are set up on this machine. Connect them?**
+> **You already have another tool installed. Turn it on here?**  
+> *(say "two other tools ... Turn them on here?" when both are offered)*
 >
-> - **Direct answers (TARS)** — Claude answers first in a line or two and tells
->   you when you are wrong. Personal to you, not committed.
-> - **UI work routing (Craft)** — one line in the working agreement pointing
->   screen work at `/craft`, which changes the smallest thing that fixes a
->   problem instead of regenerating the screen.
+> - **Shorter, blunter answers** — Claude replies in a line or two and says
+>   plainly when your idea will not work, instead of agreeing and padding. This
+>   one is yours alone; your teammates are not affected.
+> - **Careful screen edits** — when you ask for design or interface work, Claude
+>   changes the smallest thing that is actually wrong instead of rebuilding the
+>   whole page and losing the parts you liked.
 
-Phrase both options by what they do. The user should not need to know what an
-output style is to answer, and must not need to know either product's name.
+Phrase both options by what the user gets. The user should not need to know what
+an output style is to answer, and must not need to know either product's name —
+put the name in the diff at Step 6, not in the question.
 
 Suppress an option that is already true: `style.set_local` already equal to
 `style.name`, or `craft.referenced: yes`. Re-offering a setting the user already

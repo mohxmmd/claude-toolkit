@@ -71,6 +71,21 @@ Write `.craft/config.md` from [templates/config.md](../../templates/config.md), 
 
 Never silently overwrite an existing `config.md`. Update in place, leaving human edits untouched, and report what changed.
 
+Then append one line per artifact to `.forge/manifest.tsv`, creating it with the
+header if it does not exist. It is the receipt an uninstall reads, and without
+it removal falls back to guessing:
+
+```
+# component	kind	path	a	b
+craft	path	.craft
+craft	gitignore	.gitignore	.craft/cache/
+```
+
+Record only what this run created, one line per thing, paths relative to the
+repository root. On a refresh, skip lines that are already there. Never record
+`.gitignore` itself as a `path`: the `gitignore` kind removes the single line
+and leaves the user's file alone.
+
 ### 5b. Offer the enforced form of "do not change"
 
 Everything in `config.md` is a **convention**: CRAFT reads it and follows it, and

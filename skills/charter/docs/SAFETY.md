@@ -23,13 +23,13 @@ Charter never describes a tier-3 item as a boundary, and never describes a tier-
 
 | Preset | Denied | Prompts | Allowed |
 | --- | --- | --- | --- |
-| **Propose only** | push, `reset --hard`, `git config` | commit, branch creation | read-only git |
-| **Local commits** | force-push (both spellings), push to the default branch, `git config` | push | commit, add, branch, read-only git |
+| **Propose only** | push, `reset --hard` | commit, branch creation, `git config` | read-only git |
+| **Local commits** | force-push (both spellings), push to the default branch | push, `git config` | commit, add, branch, read-only git |
 | **Full** | force-push (both spellings) | push to the default branch | everything else |
 
 Force-push is denied in **all three presets, including Full.** It is the one git operation that destroys other people's work. A developer who genuinely needs it can run it in their own terminal — that is a deliberate friction, not an oversight.
 
-`git config` is denied outside Full because it can rewrite hooks and aliases into arbitrary code execution.
+`git config` **prompts** outside Full because it can rewrite hooks and aliases into arbitrary code execution. It prompts rather than denying because a deny cannot carry exceptions and would also block the read-only `git config --get`.
 
 ### Database
 
@@ -55,7 +55,7 @@ Read this section. A safety tool that overstates its coverage is worse than none
 
 **Permission rules govern Claude Code's own tools**, and the file commands it recognises inside Bash such as `cat`, `head`, `tail` and `sed`. They do **not** govern:
 
-- **A shell re-entered as an argument.** `sh -c 'git push origin main'` is one command whose argument happens to be a command. `sh`, `bash` and `zsh` are not stripped before matching, so no rule written for `git push` sees it. Charter puts `sh -c`, `bash -c`, `zsh -c`, `eval` and `env` on `ask` in every repository, which makes it visible rather than silent. A prompt is not a wall.
+- **A shell re-entered as an argument.** `sh -c 'git push origin main'` is one command whose argument happens to be a command. `sh`, `bash` and `zsh` are not stripped before matching, so no rule written for `git push` sees it. Charter *offers* `sh -c`, `bash -c`, `zsh -c` and `eval` on `ask` as a separate accept, which makes it visible rather than silent. It is an offer and not a default because those forms also carry ordinary work, and in `auto` mode the prompts land on exactly the commands the user chose not to be asked about. A prompt is not a wall either way; the sandbox is the layer that closes this.
 - **Arbitrary subprocesses.** A Python or Node script that opens a file itself is not intercepted. A `Read` deny on `.env` does not stop `python -c "print(open('.env').read())"`.
 - **Environment runners.** `docker exec`, `npx`, `devbox run`, `mise exec` and `direnv exec` are not stripped before matching. Charter never emits a bare allow for these, but if you add one yourself it permits everything behind it.
 - **Exec wrappers.** `watch`, `setsid`, `flock`, and `find -exec` cannot be auto-approved by a prefix rule. In manual mode they always prompt, which is the safe direction, but do not assume a rule covers them.
