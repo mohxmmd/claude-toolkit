@@ -281,6 +281,7 @@ Worked sequences are in [examples/](examples/README.md).
 | `setup.sh` / `setup.ps1` | The Forge installer. Installs all three and enables auto-update |
 | `install.sh` / `install.ps1` | The TARS file installer. Copies `output-styles/TARS.md` into `~/.claude/` |
 | `uninstall.sh` / `uninstall.ps1` | The uninstaller. Removes the plugins, the settings and what Charter and Craft wrote here |
+| `GUIDE.txt` | The whole thing as one plain-text file: install, use, update, uninstall |
 | `.gitattributes` | Forces LF on `*.sh`, so a Windows checkout does not break every script |
 | `docs/` | Long-form documentation, plus the setup and publishing guides |
 | `examples/` | Worked command sequences |
